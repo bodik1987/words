@@ -3,6 +3,7 @@ package com.bodik.words.components.BottomSheets
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -145,23 +146,33 @@ fun EditItemBottomSheet(
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                if (isEditMode && onMoveItem != null) {
-                    Button(
-                        onClick = { showMoveBottomSheet = true },
-                        modifier = Modifier.size(40.dp),
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            contentColor = MaterialTheme.colorScheme.onBackground
-                        )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.folder),
-                            contentDescription = "Move",
-                            modifier = Modifier.size(22.dp),
-                        )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isEditMode && onMoveItem != null) {
+                        Button(
+                            onClick = { showMoveBottomSheet = true },
+                            modifier = Modifier.size(40.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.folder),
+                                contentDescription = "Move",
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
                     }
+
+                    CustomSwitch(
+                        checked = isAudioCard,
+                        onCheckedChange = { isAudioCard = it },
+                    )
                 }
             }
 
@@ -212,38 +223,19 @@ fun EditItemBottomSheet(
                         fontFamily = MyFontFamily,
                     )
 
-                    Spacer(
-                        Modifier
-                            .height(1.dp)
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Карточка для озвучивания",
-                            fontFamily = MyFontFamily,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        CustomSwitch(
-                            checked = isAudioCard,
-                            onCheckedChange = { isAudioCard = it },
-                        )
-                    }
-
                     if (isAudioCard) {
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background)
+                        )
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { showLanguageMenu = true }
-                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                                .padding(horizontal = 24.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -253,31 +245,33 @@ fun EditItemBottomSheet(
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            Text(
-                                text = selectedLanguage.displayName,
-                                fontFamily = MyFontFamily,
-                                fontSize = 16.sp,
-                                color = Orange80
-                            )
-                        }
 
-                        DropdownMenu(
-                            expanded = showLanguageMenu,
-                            onDismissRequest = { showLanguageMenu = false }
-                        ) {
-                            Language.values().forEach { language ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            language.displayName,
-                                            fontFamily = MyFontFamily
-                                        )
-                                    },
-                                    onClick = {
-                                        selectedLanguage = language
-                                        showLanguageMenu = false
-                                    }
+                            Box {
+                                Text(
+                                    text = selectedLanguage.displayName,
+                                    fontFamily = MyFontFamily,
+                                    fontSize = 16.sp,
+                                    color = Orange80
                                 )
+                                DropdownMenu(
+                                    expanded = showLanguageMenu,
+                                    onDismissRequest = { showLanguageMenu = false }
+                                ) {
+                                    Language.entries.forEach { language ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Text(
+                                                    language.displayName,
+                                                    fontFamily = MyFontFamily
+                                                )
+                                            },
+                                            onClick = {
+                                                selectedLanguage = language
+                                                showLanguageMenu = false
+                                            }
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
