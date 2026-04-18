@@ -87,7 +87,6 @@ fun MainScreenList(
             )
         }
 
-        // Разделитель между секциями
         if (unassignedItems.isNotEmpty()) {
             item { Spacer(Modifier.height(24.dp)) }
             item { LabelText("Слова") }

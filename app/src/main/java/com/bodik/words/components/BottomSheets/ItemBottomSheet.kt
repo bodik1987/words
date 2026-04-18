@@ -1,5 +1,6 @@
 package com.bodik.words.components.BottomSheets
 
+import android.speech.tts.TextToSpeech
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +53,7 @@ import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.ItemManager
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,6 +66,20 @@ fun ItemBottomSheet(
     onMoveItem: ((String, String?) -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val tts = remember {
+        var ttsInstance: TextToSpeech? = null
+        ttsInstance = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                ttsInstance?.language = Locale.forLanguageTag(editingItem?.targetLanguage ?: "pl")
+            }
+        }
+        ttsInstance
+    }
+
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        onDispose { tts.shutdown() }
+    }
+
     val itemManager = remember { ItemManager(context) }
 
     var name by remember { mutableStateOf(editingItem?.name ?: "") }
@@ -368,7 +384,6 @@ fun ItemBottomSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 1. СВИТЧ ВСЕГДА ПЕРВЫЙ (слева), если мы в режиме редактирования айтема
                 if (isEditMode) {
                     Box(
                         modifier = Modifier.height(52.dp),
@@ -393,7 +408,11 @@ fun ItemBottomSheet(
 
                     if (isAudioCard) {
                         Button(
-                            onClick = { /* Логика озвучки */ },
+                            onClick = {
+                                tts.language =
+                                    Locale.forLanguageTag(editingItem?.targetLanguage ?: "pl")
+                                tts.speak(name, TextToSpeech.QUEUE_FLUSH, null, null)
+                            },
                             modifier = Modifier.size(52.dp),
                             shape = CircleShape,
                             contentPadding = PaddingValues(0.dp),
