@@ -16,6 +16,7 @@ import com.bodik.words.components.MainScreenFloatingButtons
 import com.bodik.words.components.MainScreenList
 import com.bodik.words.components.TopBar
 import com.bodik.words.utils.FolderManager
+import com.bodik.words.utils.ItemManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,13 +27,21 @@ fun MainScreen(navController: NavHostController) {
 
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
+    val itemManager = remember { ItemManager(context) }
 
     // Состояние для папок
     var folders by remember { mutableStateOf(folderManager.getFolders()) }
 
-    // Функция обновления
+    // Состояние для элементов без папки
+    var unassignedItems by remember { mutableStateOf(itemManager.getUnassignedItems()) }
+
+    // Функции обновления
     val refreshFolders = {
         folders = folderManager.getFolders()
+    }
+
+    val refreshUnassignedItems = {
+        unassignedItems = itemManager.getUnassignedItems()
     }
 
     Scaffold(
@@ -48,10 +57,19 @@ fun MainScreen(navController: NavHostController) {
             paddingValues = paddingValues,
             navController = navController,
             folders = folders,
-            onReorder = { reorderedFolders ->
+            unassignedItems = unassignedItems,  // Передаем элементы без папки
+            onReorderFolders = { reorderedFolders ->
                 folderManager.saveFolders(reorderedFolders)
                 refreshFolders()
             },
+            onReorderItems = { reorderedItems ->
+                itemManager.saveItems(reorderedItems)
+                refreshUnassignedItems()
+            },
+            onDeleteItem = { itemId ->
+                itemManager.deleteItem(itemId)
+                refreshUnassignedItems()
+            }
         )
     }
 
@@ -69,13 +87,21 @@ fun MainScreen(navController: NavHostController) {
             },
             onFolderAdded = { folderName ->
                 folderManager.addFolder(folderName)
+                refreshFolders()
             }
         )
     }
 
     if (showAddItemBottomSheet) {
         AddItemBottomSheet(
-            onDismiss = { showAddItemBottomSheet = false },
+            onDismiss = {
+                showAddItemBottomSheet = false
+                refreshUnassignedItems()
+            },
+            folderId = null,
+            onItemSaved = {
+                refreshUnassignedItems()
+            }
         )
     }
 }

@@ -33,19 +33,24 @@ import com.bodik.words.components.FolderScreenFloatingButton
 import com.bodik.words.components.FolderScreenList
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.utils.FolderManager
+import com.bodik.words.utils.ItemManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderScreen(
     folderId: String,
     onBack: () -> Unit,
-    navController: NavHostController? = null  // Добавим для навигации после удаления
+    navController: NavHostController? = null
 ) {
     var showAddItemBottomSheet by remember { mutableStateOf(false) }
     var showFolderBottomSheet by remember { mutableStateOf(false) }
 
+    // Состояние для обновления списка
+    var refreshTrigger by remember { mutableStateOf(0) }
+
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
+    val itemManager = remember { ItemManager(context) }
 
     // Получаем информацию о текущей папке
     val folder = remember(folderId) {
@@ -57,7 +62,12 @@ fun FolderScreen(
     // Функция для удаления папки
     val deleteFolder = {
         folderManager.deleteFolder(folderId)
-        onBack()  // Возвращаемся на главный экран
+        onBack()
+    }
+
+    // Функция для обновления списка слов
+    val refreshWords = {
+        refreshTrigger++
     }
 
     Scaffold(
@@ -109,14 +119,21 @@ fun FolderScreen(
     ) { paddingValues ->
         FolderScreenList(
             paddingValues = paddingValues,
-//            folderId = folderId  // Передаем folderId для загрузки слов
+            folderId = folderId,  // Раскомментировано!
+            refreshTrigger = refreshTrigger  // Добавлен триггер обновления
         )
     }
 
     if (showAddItemBottomSheet) {
         AddItemBottomSheet(
-            onDismiss = { showAddItemBottomSheet = false },
-//            folderId = folderId  // Передаем folderId для сохранения слова в правильную папку
+            onDismiss = {
+                showAddItemBottomSheet = false
+                refreshWords()  // Обновляем список после закрытия
+            },
+            folderId = folderId,
+            onItemSaved = {
+                refreshWords()  // Обновляем список после сохранения
+            }
         )
     }
 

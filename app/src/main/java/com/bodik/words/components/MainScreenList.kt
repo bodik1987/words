@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.data.Folder
+import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
@@ -24,13 +25,17 @@ fun MainScreenList(
     paddingValues: PaddingValues,
     navController: NavHostController,
     folders: List<Folder>,
-    onReorder: (List<Folder>) -> Unit
+    unassignedItems: List<Item>,
+    onReorderFolders: (List<Folder>) -> Unit,
+    onReorderItems: (List<Item>) -> Unit,
+    onDeleteItem: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues)
     ) {
+        // Секция папок
         item { LabelText("Папки") }
         item {
             val menuItems = folders.map { folder ->
@@ -56,10 +61,39 @@ fun MainScreenList(
                     val reorderedFolders = reorderedItems.mapNotNull { item ->
                         folders.find { it.id == item.id }
                     }
-                    onReorder(reorderedFolders)
+                    onReorderFolders(reorderedFolders)
                 }
             )
         }
+
+        // Разделитель между секциями
+        if (unassignedItems.isNotEmpty()) {
+            item { Spacer(Modifier.height(24.dp)) }
+            item { LabelText("Слова") }
+            item {
+                val itemMenuItems = unassignedItems.map { item ->
+                    IslandListItem(
+                        id = item.id,
+                        label = item.name,
+                        supportingText = item.description,
+                        onClick = { id ->
+                            // Здесь можно открыть редактирование
+                        }
+                    )
+                }
+
+                ReorderableIslandColumn(
+                    items = itemMenuItems,
+                    onReorder = { reorderedItems ->
+                        val reorderedItemObjects = reorderedItems.mapNotNull { item ->
+                            unassignedItems.find { it.id == item.id }
+                        }
+                        onReorderItems(reorderedItemObjects)
+                    }
+                )
+            }
+        }
+
         item { Spacer(Modifier.height(10.dp)) }
         item {
             Spacer(modifier = Modifier.height(80.dp))

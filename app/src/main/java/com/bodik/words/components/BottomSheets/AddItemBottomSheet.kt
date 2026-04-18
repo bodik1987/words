@@ -1,7 +1,7 @@
 package com.bodik.words.components.BottomSheets
 
-
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -28,28 +31,81 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.data.Item
+import com.bodik.words.data.Language
 import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
+import com.bodik.words.utils.ItemManager
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemBottomSheet(
     onDismiss: () -> Unit,
+    folderId: String? = null,  // ID папки, если создаем внутри папки
+    editingItem: Item? = null,  // Если передан - режим редактирования
+    onItemSaved: () -> Unit = {}  // Callback после сохранения
 ) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var example by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val itemManager = remember { ItemManager(context) }
+
+    // Состояния формы
+    var name by remember { mutableStateOf(editingItem?.name ?: "") }
+    var description by remember { mutableStateOf(editingItem?.description ?: "") }
+    var example by remember { mutableStateOf(editingItem?.example ?: "") }
+    var isAudioCard by remember { mutableStateOf(editingItem?.isAudioCard ?: false) }
+    var selectedLanguage by remember {
+        mutableStateOf(
+            Language.values().find { it.code == (editingItem?.targetLanguage ?: "pl") }
+                ?: Language.PL
+        )
+    }
+
+    var showLanguageMenu by remember { mutableStateOf(false) }
+
+    val isEditMode = editingItem != null
+    val titleText = if (isEditMode) "Редактировать" else "Добавить"
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
+    }
+
+    val saveItem = {
+        if (name.isNotBlank() && description.isNotBlank()) {
+            if (isEditMode && editingItem != null) {
+                // Редактирование существующего элемента
+                val updatedItem = editingItem.copy(
+                    name = name,
+                    description = description,
+                    example = example.takeIf { it.isNotBlank() },
+                    isAudioCard = isAudioCard,
+                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl"
+                )
+                itemManager.updateItem(updatedItem)  // Исправлено: itemManager
+            } else {
+                // Создание нового элемента
+                val newItem = Item(
+                    id = System.currentTimeMillis().toString(),
+                    name = name,
+                    description = description,
+                    example = example.takeIf { it.isNotBlank() },
+                    isAudioCard = isAudioCard,
+                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
+                    folderId = folderId
+                )
+                itemManager.addItem(newItem)  // Исправлено: itemManager
+            }
+            onItemSaved()
+            closeSheet()
+        }
     }
 
     ModalBottomSheet(
@@ -65,6 +121,7 @@ fun AddItemBottomSheet(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp),
         ) {
+            // Заголовок
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -73,7 +130,7 @@ fun AddItemBottomSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Добавить",
+                    text = titleText,
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -83,6 +140,7 @@ fun AddItemBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
+            // Форма
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(34.dp),
@@ -94,63 +152,130 @@ fun AddItemBottomSheet(
                         .padding(vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
+                    // Название (слово/фраза)
                     WordTextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        placeholder = "Название",
+                        value = name,
+                        onValueChange = { name = it },
+                        placeholder = "Слово/фраза",
                         fontSize = 20.sp,
                         maxLines = 3,
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.Medium
                     )
 
+                    // Описание (перевод/значение)
                     WordTextField(
                         value = description,
                         onValueChange = { description = it },
-                        placeholder = "Описание",
+                        placeholder = "Перевод/значение",
                         fontSize = 18.sp,
                         maxLines = 3,
                         fontFamily = MyFontFamily,
                     )
+
+                    // Пример
+                    WordTextField(
+                        value = example,
+                        onValueChange = { example = it },
+                        placeholder = "Пример (необязательно)",
+                        fontSize = 16.sp,
+                        maxLines = 5,
+                        fontFamily = MyFontFamily,
+                    )
+
                     Spacer(
                         Modifier
                             .height(1.dp)
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
                     )
-                    WordTextField(
-                        value = example,
-                        onValueChange = { example = it },
-                        placeholder = "Пример",
-                        fontSize = 16.sp,
-                        maxLines = 5,
-                        fontFamily = MyFontFamily,
-                    )
+
+                    // Переключатель для аудиокарточки
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Карточка для озвучивания",
+                            fontFamily = MyFontFamily,
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Switch(
+                            checked = isAudioCard,
+                            onCheckedChange = { isAudioCard = it }
+                        )
+                    }
+
+                    // Выбор языка (показываем только если включена аудиокарточка)
+                    if (isAudioCard) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { showLanguageMenu = true }
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Язык озвучивания",
+                                fontFamily = MyFontFamily,
+                                fontSize = 16.sp,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = selectedLanguage.displayName,
+                                fontFamily = MyFontFamily,
+                                fontSize = 16.sp,
+                                color = Orange80
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = showLanguageMenu,
+                            onDismissRequest = { showLanguageMenu = false }
+                        ) {
+                            Language.values().forEach { language ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            language.displayName,
+                                            fontFamily = MyFontFamily
+                                        )
+                                    },
+                                    onClick = {
+                                        selectedLanguage = language
+                                        showLanguageMenu = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
+            // Кнопка сохранения
             Button(
-                onClick = {
-                    if (title.isNotBlank()) {
-                        closeSheet()
-                    }
-                },
+                onClick = { saveItem() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
-                enabled = title.isNotBlank(),
+                enabled = name.isNotBlank() && description.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (title.isNotBlank()) Orange80
+                    containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
                     else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (title.isNotBlank()) Color.White
+                    contentColor = if (name.isNotBlank() && description.isNotBlank()) Color.White
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 ),
             ) {
                 Text(
-                    "Сохранить",
+                    if (isEditMode) "Обновить" else "Сохранить",
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
@@ -159,4 +284,3 @@ fun AddItemBottomSheet(
         }
     }
 }
-
