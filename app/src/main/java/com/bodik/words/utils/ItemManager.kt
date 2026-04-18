@@ -24,6 +24,11 @@ class ItemManager(context: Context) {
         prefs.edit { putString(ITEMS_KEY, json) }
     }
 
+    fun saveUnassignedItems(unassignedItems: List<Item>) {
+        val itemsInFolders = getAllItems().filter { it.folderId != null }
+        saveItems(itemsInFolders + unassignedItems)
+    }
+
     fun addItem(item: Item): Item {
         val items = getAllItems().toMutableList()
         items.add(item)
@@ -60,10 +65,8 @@ class ItemManager(context: Context) {
 
     fun reorderItemsInFolder(folderId: String, reorderedItems: List<Item>) {
         val allItems = getAllItems().toMutableList()
-        // Удаляем все старые элементы этой папки
         allItems.removeAll { it.folderId == folderId }
-        // Добавляем новые в нужном порядке
-        allItems.addAll(reorderedItems)
+        allItems.addAll(reorderedItems) // ✅ ок
         saveItems(allItems)
     }
 

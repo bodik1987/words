@@ -15,7 +15,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.bodik.words.components.BottomSheets.EditItemBottomSheet
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
@@ -27,22 +26,14 @@ fun FolderScreenList(
     paddingValues: PaddingValues,
     folderId: String,
     refreshTrigger: Int = 0,
-    onEditItem: ((Item) -> Unit)? = null,
-    onMoveItemCallback: ((String, String?) -> Unit)? = null  // Переименовали
+    onEditItem: (Item) -> Unit,
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
 
     var items by remember { mutableStateOf(itemManager.getItemsInFolder(folderId)) }
-    var showEditBottomSheet by remember { mutableStateOf(false) }
-    var editingItem by remember { mutableStateOf<Item?>(null) }
 
-    // Обновляем список при изменении refreshTrigger
     androidx.compose.runtime.LaunchedEffect(refreshTrigger, folderId) {
-        items = itemManager.getItemsInFolder(folderId)
-    }
-
-    val refreshItems = {
         items = itemManager.getItemsInFolder(folderId)
     }
 
@@ -69,7 +60,8 @@ fun FolderScreenList(
                         supportingText = wordItem.description,
                         example = wordItem.example,
                         onClick = { id ->
-                            onEditItem?.invoke(items.find { it.id == id }!!)
+                            val found = items.find { it.id == id }
+                            if (found != null) onEditItem(found)
                         }
                     )
                 }
@@ -81,32 +73,13 @@ fun FolderScreenList(
                             items.find { it.id == item.id }
                         }
                         itemManager.reorderItemsInFolder(folderId, reorderedWords)
-                        refreshItems()
+                        items = itemManager.getItemsInFolder(folderId)
                     }
                 )
             }
         }
 
         item { Spacer(Modifier.height(10.dp)) }
-        item {
-            Spacer(modifier = Modifier.height(80.dp))
-        }
-    }
-
-    if (showEditBottomSheet && editingItem != null) {
-        EditItemBottomSheet(
-            onDismiss = {
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            folderId = folderId,
-            editingItem = editingItem,
-            onItemSaved = {
-                refreshItems()
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            onMoveItem = onMoveItemCallback
-        )
+        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }

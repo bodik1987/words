@@ -67,7 +67,7 @@ fun MainScreen(navController: NavHostController) {
                 refreshFolders()
             },
             onReorderItems = { reorderedItems ->
-                itemManager.saveItems(reorderedItems)
+                itemManager.saveUnassignedItems(reorderedItems) // ← было saveItems
                 refreshUnassignedItems()
             },
             onDeleteItem = { itemId ->

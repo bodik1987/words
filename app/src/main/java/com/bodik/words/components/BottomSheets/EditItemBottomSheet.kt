@@ -97,7 +97,8 @@ fun EditItemBottomSheet(
                     description = description,
                     example = example.takeIf { it.isNotBlank() },
                     isAudioCard = isAudioCard,
-                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl"
+                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
+                    folderId = editingItem.folderId
                 )
                 itemManager.updateItem(updatedItem)
             } else {

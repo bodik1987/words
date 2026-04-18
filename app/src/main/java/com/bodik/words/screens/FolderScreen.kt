@@ -46,33 +46,19 @@ fun FolderScreen(
     var showFolderBottomSheet by remember { mutableStateOf(false) }
     var showEditBottomSheet by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
-
-    // Состояние для обновления списка
     var refreshTrigger by remember { mutableStateOf(0) }
 
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
     val itemManager = remember { ItemManager(context) }
 
-    // Получаем информацию о текущей папке
     val folder = remember(folderId) {
         folderManager.getFolders().find { it.id == folderId }
     }
-
     val folderName = folder?.name ?: "Папка"
 
-    // Функция для удаления папки
-    val deleteFolder = {
-        folderManager.deleteFolder(folderId)
-        onBack()
-    }
+    val refreshWords = { refreshTrigger++ }
 
-    // Функция для обновления списка слов
-    val refreshWords = {
-        refreshTrigger++
-    }
-
-    // Функция для перемещения элемента
     val moveItemToFolder: (String, String?) -> Unit = { itemId, newFolderId ->
         itemManager.moveItemToFolder(itemId, newFolderId)
         refreshWords()
@@ -120,9 +106,7 @@ fun FolderScreen(
             )
         },
         floatingActionButton = {
-            FolderScreenFloatingButton(onAddItemClick = {
-                showAddItemBottomSheet = true
-            })
+            FolderScreenFloatingButton(onAddItemClick = { showAddItemBottomSheet = true })
         }
     ) { paddingValues ->
         FolderScreenList(
@@ -132,18 +116,14 @@ fun FolderScreen(
             onEditItem = { item ->
                 editingItem = item
                 showEditBottomSheet = true
-            },
-            onMoveItemCallback = moveItemToFolder  // Используем новое имя
+            }
         )
     }
 
-    // BottomSheet для создания нового элемента
+    // Bottom sheet для создания нового элемента
     if (showAddItemBottomSheet) {
         EditItemBottomSheet(
-            onDismiss = {
-                showAddItemBottomSheet = false
-                refreshWords()
-            },
+            onDismiss = { showAddItemBottomSheet = false },
             folderId = folderId,
             onItemSaved = {
                 refreshWords()
@@ -152,6 +132,7 @@ fun FolderScreen(
         )
     }
 
+    // Bottom sheet для редактирования существующего элемента
     if (showEditBottomSheet && editingItem != null) {
         EditItemBottomSheet(
             onDismiss = {
@@ -165,10 +146,16 @@ fun FolderScreen(
                 showEditBottomSheet = false
                 editingItem = null
             },
-            onItemDeleted = { // ДОБАВИТЬ ЭТО
+            onItemDeleted = {
                 refreshWords()
+                showEditBottomSheet = false
+                editingItem = null
             },
-            onMoveItem = moveItemToFolder
+            onMoveItem = { itemId, newFolderId ->
+                moveItemToFolder(itemId, newFolderId)
+                showEditBottomSheet = false
+                editingItem = null
+            }
         )
     }
 
@@ -176,7 +163,10 @@ fun FolderScreen(
         FolderBottomSheet(
             onDismiss = { showFolderBottomSheet = false },
             folderName = folderName,
-            onDeleteFolder = deleteFolder
+            onDeleteFolder = {
+                folderManager.deleteFolder(folderId)
+                onBack()
+            }
         )
     }
 }
