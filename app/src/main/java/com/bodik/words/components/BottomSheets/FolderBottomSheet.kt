@@ -1,6 +1,5 @@
 package com.bodik.words.components.BottomSheets
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,34 +14,25 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.MyFontFamily
-import com.bodik.words.ui.theme.Orange80
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFolderBottomSheet(
+fun FolderBottomSheet(
     onDismiss: () -> Unit,
-    onFolderAdded: (String) -> Unit
+    folderName: String,  // Добавьте название папки
+    onDeleteFolder: () -> Unit  // Добавьте callback для удаления
 ) {
-    var title by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -71,7 +61,7 @@ fun AddFolderBottomSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Добавить папку",
+                    text = "Настройки",
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -81,52 +71,22 @@ fun AddFolderBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(34.dp),
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                ) {
-                    WordTextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        placeholder = "Название папки",
-                        fontSize = 20.sp,
-                        maxLines = 3,
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(24.dp))
-
             Button(
                 onClick = {
-                    if (title.isNotBlank()) {
-                        onFolderAdded(title)
-                        closeSheet()
-                    }
+                    onDeleteFolder()  // Вызываем удаление
+                    closeSheet()      // Закрываем bottom sheet
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
-                enabled = title.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (title.isNotBlank()) Orange80
-                    else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (title.isNotBlank()) Color.White
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.error
                 ),
             ) {
                 Text(
-                    "Сохранить",
+                    "Удалить папку",
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
@@ -135,4 +95,3 @@ fun AddFolderBottomSheet(
         }
     }
 }
-

@@ -27,7 +27,7 @@ fun TopBar(onMenuClick: () -> Unit = {}) {
     TopAppBar(
         title = {
             Text(
-                text = "Заголовок",
+                text = "Слова",
                 maxLines = 1,
                 fontWeight = FontWeight.SemiBold,
                 fontFamily = MyFontFamily,

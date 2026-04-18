@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.bodik.words.components.BottomSheets.AddFolderBottomSheet
 import com.bodik.words.components.BottomSheets.AddItemBottomSheet
@@ -14,6 +15,7 @@ import com.bodik.words.components.BottomSheets.SettingsBottomSheet
 import com.bodik.words.components.MainScreenFloatingButtons
 import com.bodik.words.components.MainScreenList
 import com.bodik.words.components.TopBar
+import com.bodik.words.utils.FolderManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,17 +24,35 @@ fun MainScreen(navController: NavHostController) {
     var showAddFolderBottomSheet by remember { mutableStateOf(false) }
     var showAddItemBottomSheet by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+    val folderManager = remember { FolderManager(context) }
+
+    // Состояние для папок
+    var folders by remember { mutableStateOf(folderManager.getFolders()) }
+
+    // Функция обновления
+    val refreshFolders = {
+        folders = folderManager.getFolders()
+    }
+
     Scaffold(
         topBar = { TopBar(onMenuClick = { showSettingsBottomSheet = true }) },
         floatingActionButton = {
-            MainScreenFloatingButtons(onAddFolderClick = {
-                showAddFolderBottomSheet = true
-            }, onAddItemClick = {
-                showAddItemBottomSheet = true
-            })
+            MainScreenFloatingButtons(
+                onAddFolderClick = { showAddFolderBottomSheet = true },
+                onAddItemClick = { showAddItemBottomSheet = true }
+            )
         }
     ) { paddingValues ->
-        MainScreenList(paddingValues, navController)
+        MainScreenList(
+            paddingValues = paddingValues,
+            navController = navController,
+            folders = folders,
+            onReorder = { reorderedFolders ->
+                folderManager.saveFolders(reorderedFolders)
+                refreshFolders()
+            },
+        )
     }
 
     if (showSettingsBottomSheet) {
@@ -43,7 +63,13 @@ fun MainScreen(navController: NavHostController) {
 
     if (showAddFolderBottomSheet) {
         AddFolderBottomSheet(
-            onDismiss = { showAddFolderBottomSheet = false },
+            onDismiss = {
+                showAddFolderBottomSheet = false
+                refreshFolders()
+            },
+            onFolderAdded = { folderName ->
+                folderManager.addFolder(folderName)
+            }
         )
     }
 
@@ -52,5 +78,4 @@ fun MainScreen(navController: NavHostController) {
             onDismiss = { showAddItemBottomSheet = false },
         )
     }
-
 }

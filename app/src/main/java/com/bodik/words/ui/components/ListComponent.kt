@@ -71,7 +71,7 @@ data class IslandListItem(
     val supportingText: String? = null,
     val leadingContent: (@Composable () -> Unit)? = null,
     val trailingContent: (@Composable () -> Unit)? = null,
-    val onClick: (String) -> Unit = {}
+    val onClick: (String) -> Unit = {},
 )
 
 @Composable

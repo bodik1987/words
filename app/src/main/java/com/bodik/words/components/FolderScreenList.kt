@@ -26,7 +26,7 @@ fun FolderScreenList(
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        item { LabelText("Папки") }
+        item { LabelText("Элементы") }
         item {
             var menuItems by remember {
                 mutableStateOf(
