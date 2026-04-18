@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bodik.words.R
-import com.bodik.words.components.BottomSheets.EditItemBottomSheet
+import com.bodik.words.components.BottomSheets.ItemBottomSheet
 import com.bodik.words.components.BottomSheets.MoveItemBottomSheet
 import com.bodik.words.data.Folder
 import com.bodik.words.data.Item
@@ -124,7 +124,7 @@ fun MainScreenList(
     }
 
     if (showEditBottomSheet && editingItem != null) {
-        EditItemBottomSheet(
+        ItemBottomSheet(
             onDismiss = {
                 showEditBottomSheet = false
                 editingItem = null

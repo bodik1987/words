@@ -27,8 +27,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bodik.words.R
-import com.bodik.words.components.BottomSheets.EditItemBottomSheet
 import com.bodik.words.components.BottomSheets.FolderBottomSheet
+import com.bodik.words.components.BottomSheets.ItemBottomSheet
 import com.bodik.words.components.FolderScreenFloatingButton
 import com.bodik.words.components.FolderScreenList
 import com.bodik.words.ui.theme.MyFontFamily
@@ -124,7 +124,7 @@ fun FolderScreen(
 
     // Bottom sheet для создания нового элемента
     if (showAddItemBottomSheet) {
-        EditItemBottomSheet(
+        ItemBottomSheet(
             onDismiss = { showAddItemBottomSheet = false },
             folderId = folderId,
             onItemSaved = {
@@ -136,7 +136,7 @@ fun FolderScreen(
 
     // Bottom sheet для редактирования существующего элемента
     if (showEditBottomSheet && editingItem != null) {
-        EditItemBottomSheet(
+        ItemBottomSheet(
             onDismiss = {
                 showEditBottomSheet = false
                 editingItem = null
