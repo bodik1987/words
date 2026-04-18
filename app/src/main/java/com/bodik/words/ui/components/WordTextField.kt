@@ -24,11 +24,15 @@ fun WordTextField(
     fontSize: TextUnit,
     maxLines: Int = 1,
     fontFamily: FontFamily? = null,
-    fontWeight: FontWeight? = null
+    fontWeight: FontWeight? = null,
+    readOnly: Boolean = false,
+    enabled: Boolean = true
 ) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
+        readOnly = readOnly,
+        enabled = enabled,
         textStyle = TextStyle(
             fontSize = fontSize,
             fontFamily = fontFamily ?: FontFamily.Default,

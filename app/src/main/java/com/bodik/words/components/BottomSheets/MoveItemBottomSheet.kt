@@ -1,5 +1,7 @@
 package com.bodik.words.components.BottomSheets
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,10 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -26,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.R
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.FolderManager
@@ -65,13 +71,13 @@ fun MoveItemBottomSheet(
             Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 12.dp)
                 .padding(bottom = 24.dp),
         ) {
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp),
+                    .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -84,77 +90,44 @@ fun MoveItemBottomSheet(
                 )
             }
 
-            Spacer(Modifier.height(24.dp))
-
+            // Остров со списком папок
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(34.dp),
+                shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerLowest,
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    // Опция "Без папки"
-                    Button(
-                        onClick = {
-                            selectedFolderId = null
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (selectedFolderId == null)
-                                Orange80
-                            else
-                                MaterialTheme.colorScheme.surfaceContainerHighest
-                        )
-                    ) {
-                        Text(
-                            "📁 Без папки (на главном экране)",
-                            fontFamily = MyFontFamily,
-                            color = if (selectedFolderId == null)
-                                androidx.compose.ui.graphics.Color.White
-                            else
-                                MaterialTheme.colorScheme.onBackground
-                        )
-                    }
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // 1. Опция "Без папки"
+                    FolderIslandItem(
+                        name = "Без папки",
+                        isSelected = selectedFolderId == null,
+                        isFirst = true,
+                        isLast = folders.isEmpty(),
+                        onClick = { selectedFolderId = null }
+                    )
 
-                    // Список папок
-                    folders.forEach { folder ->
-                        Button(
-                            onClick = {
-                                selectedFolderId = folder.id
-                            },
-                            modifier = Modifier
+                    // 2. Список существующих папок
+                    folders.forEachIndexed { index, folder ->
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(28.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selectedFolderId == folder.id)
-                                    Orange80
-                                else
-                                    MaterialTheme.colorScheme.surfaceContainerHighest
-                            )
-                        ) {
-                            Text(
-                                "📁 ${folder.name}",
-                                fontFamily = MyFontFamily,
-                                color = if (selectedFolderId == folder.id)
-                                    androidx.compose.ui.graphics.Color.White
-                                else
-                                    MaterialTheme.colorScheme.onBackground
-                            )
-                        }
+                                .background(MaterialTheme.colorScheme.background)
+                        )
+                        FolderIslandItem(
+                            name = folder.name,
+                            isSelected = selectedFolderId == folder.id,
+                            isFirst = false,
+                            isLast = index == folders.lastIndex,
+                            onClick = { selectedFolderId = folder.id }
+                        )
                     }
                 }
             }
 
             Spacer(Modifier.height(24.dp))
 
+            // Кнопка подтверждения
             Button(
                 onClick = {
                     if (selectedFolderId != currentFolderId) {
@@ -180,4 +153,50 @@ fun MoveItemBottomSheet(
             }
         }
     }
+}
+
+@Composable
+private fun FolderIslandItem(
+    name: String,
+    isSelected: Boolean,
+    isFirst: Boolean,
+    isLast: Boolean,
+    onClick: () -> Unit
+) {
+    androidx.compose.material3.ListItem(
+        headlineContent = {
+            Text(
+                text = name,
+                fontFamily = MyFontFamily,
+                fontSize = 16.sp,
+                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (isSelected) Orange80 else MaterialTheme.colorScheme.onBackground
+            )
+        },
+        leadingContent = {
+            Icon(
+                painter = painterResource(id = R.drawable.folder), // Используйте вашу иконку папки
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = if (isSelected) Orange80 else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailingContent = {
+            if (isSelected) {
+                Icon(
+                    painter = painterResource(id = R.drawable.check),
+                    contentDescription = null,
+                    tint = Orange80,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        },
+        colors = androidx.compose.material3.ListItemDefaults.colors(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        ),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp) // Небольшой внутренний отступ для удобства
+    )
 }

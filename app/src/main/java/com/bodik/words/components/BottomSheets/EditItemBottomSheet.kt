@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -45,6 +46,7 @@ import com.bodik.words.data.Item
 import com.bodik.words.data.Language
 import com.bodik.words.ui.components.CustomSwitch
 import com.bodik.words.ui.components.WordTextField
+import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.ItemManager
@@ -80,6 +82,8 @@ fun EditItemBottomSheet(
     var showLanguageMenu by remember { mutableStateOf(false) }
 
     val isEditMode = editingItem != null
+    var isReadOnly by remember { mutableStateOf(isEditMode) }
+
     val titleText = if (isEditMode) "Редактировать" else "Добавить"
 
     val scope = rememberCoroutineScope()
@@ -137,59 +141,49 @@ fun EditItemBottomSheet(
             Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 24.dp),
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 20.dp, top = 12.dp),
         ) {
-            // Заголовок
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                // Левая кнопка - Переместить (только в режиме редактирования)
-                if (isEditMode && onMoveItem != null) {
-                    Button(
-                        onClick = { showMoveBottomSheet = true },
-                        modifier = Modifier.size(44.dp),
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                            contentColor = MaterialTheme.colorScheme.onBackground
+            if (!isReadOnly) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (isEditMode && onMoveItem != null) {
+                        Spacer(Modifier.width(44.dp))
+                        Text(
+                            text = titleText,
+                            fontFamily = MyFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp,
+                            color = MaterialTheme.colorScheme.onBackground
                         )
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.folder),
-                            contentDescription = "Move",
-                            modifier = Modifier.size(22.dp),
-                        )
+                        Button(
+                            onClick = { showMoveBottomSheet = true },
+                            modifier = Modifier.size(44.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.folder),
+                                contentDescription = "Move",
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
                     }
-                } else {
-                    Spacer(modifier = Modifier.size(44.dp))
+
                 }
-
-                Text(
-                    text = titleText,
-                    fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 20.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                CustomSwitch(
-                    checked = isAudioCard,
-                    onCheckedChange = { isAudioCard = it },
-                )
+                if (isEditMode) Spacer(Modifier.height(12.dp))
             }
 
-            Spacer(Modifier.height(24.dp))
-
-            // Форма
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(34.dp),
+                shape = RoundedCornerShape(24.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerLowest,
             ) {
                 Column(
@@ -203,7 +197,8 @@ fun EditItemBottomSheet(
                         onValueChange = { name = it },
                         placeholder = "Слово/фраза",
                         fontSize = 20.sp,
-                        maxLines = 3,
+                        maxLines = 6,
+                        readOnly = isReadOnly,
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.Medium
                     )
@@ -213,27 +208,34 @@ fun EditItemBottomSheet(
                         onValueChange = { description = it },
                         placeholder = "Перевод/значение",
                         fontSize = 18.sp,
-                        maxLines = 3,
+                        maxLines = 6,
+                        readOnly = isReadOnly,
                         fontFamily = MyFontFamily,
                     )
 
-                    Spacer(
-                        Modifier
-                            .height(1.dp)
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                    )
+                    val shouldShowExample = !isReadOnly || example.isNotBlank()
 
-                    WordTextField(
-                        value = example,
-                        onValueChange = { example = it },
-                        placeholder = "Пример (необязательно)",
-                        fontSize = 16.sp,
-                        maxLines = 5,
-                        fontFamily = MyFontFamily,
-                    )
+                    if (shouldShowExample) {
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background)
+                        )
 
-                    if (isAudioCard) {
+                        WordTextField(
+                            value = example,
+                            onValueChange = { example = it },
+                            placeholder = "Пример (необязательно)",
+                            fontSize = 16.sp,
+                            maxLines = 6,
+                            readOnly = isReadOnly,
+                            fontFamily = MyFontFamily,
+                        )
+                    }
+
+
+                    if (!isReadOnly) {
                         Spacer(
                             Modifier
                                 .height(1.dp)
@@ -244,103 +246,158 @@ fun EditItemBottomSheet(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { showLanguageMenu = true }
                                 .padding(horizontal = 24.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Язык озвучивания",
-                                fontFamily = MyFontFamily,
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-
-                            Box {
-                                Text(
-                                    text = selectedLanguage.displayName,
-                                    fontFamily = MyFontFamily,
-                                    fontSize = 16.sp,
-                                    color = Orange80
-                                )
-                                DropdownMenu(
-                                    expanded = showLanguageMenu,
-                                    onDismissRequest = { showLanguageMenu = false }
-                                ) {
-                                    Language.entries.forEach { language ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Text(
-                                                    language.displayName,
-                                                    fontFamily = MyFontFamily
-                                                )
-                                            },
-                                            onClick = {
-                                                selectedLanguage = language
-                                                showLanguageMenu = false
-                                            }
-                                        )
+                            if (isAudioCard) {
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { showLanguageMenu = true }) {
+                                    Text(
+                                        text = selectedLanguage.displayName,
+                                        fontFamily = MyFontFamily,
+                                        fontSize = 18.sp,
+                                        color = Orange80
+                                    )
+                                    DropdownMenu(
+                                        expanded = showLanguageMenu,
+                                        onDismissRequest = { showLanguageMenu = false }
+                                    ) {
+                                        Language.entries.forEach { language ->
+                                            DropdownMenuItem(
+                                                text = {
+                                                    Text(
+                                                        language.displayName,
+                                                        fontFamily = MyFontFamily
+                                                    )
+                                                },
+                                                onClick = {
+                                                    selectedLanguage = language
+                                                    showLanguageMenu = false
+                                                }
+                                            )
+                                        }
                                     }
                                 }
+                            } else {
+                                Text(
+                                    text = "Озвучивать",
+                                    fontFamily = MyFontFamily,
+                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.onBackground
+                                )
                             }
+
+                            CustomSwitch(
+                                checked = isAudioCard,
+                                onCheckedChange = { isAudioCard = it },
+                            )
                         }
                     }
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // Кнопки: Удалить и Обновить/Сохранить
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // 1. СВИТЧ ВСЕГДА ПЕРВЫЙ (слева), если мы в режиме редактирования айтема
                 if (isEditMode) {
-                    Button(
-                        onClick = deleteItem,
-                        modifier = Modifier.size(52.dp),
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
+                    Box(
+                        modifier = Modifier.height(52.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.delete),
-                            contentDescription = "Delete",
-                            modifier = Modifier.size(22.dp),
+                        CustomSwitch(
+                            checked = !isReadOnly,
+                            onCheckedChange = { isReadOnly = !it }
                         )
                     }
                 }
 
-                // Кнопка Обновить/Сохранить
-                Button(
-                    onClick = { saveItem() },
-                    modifier = Modifier
-                        .weight(if (isEditMode) 1f else 1f)
-                        .height(52.dp),
-                    shape = RoundedCornerShape(34.dp),
-                    enabled = name.isNotBlank() && description.isNotBlank(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
-                        else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = if (name.isNotBlank() && description.isNotBlank()) Color.White
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    ),
-                ) {
+                if (isReadOnly) {
+                    // --- РЕЖИМ ПРОСМОТРА ---
+
                     Text(
-                        if (isEditMode) "Обновить" else "Сохранить",
+                        text = "Редактировать",
                         fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
+
+                    Spacer(Modifier.weight(1f))
+
+                    if (isAudioCard) {
+                        Button(
+                            onClick = { /* Логика озвучки */ },
+                            modifier = Modifier.size(52.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = Blue80
+                            ),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.volume),
+                                contentDescription = "Speak",
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
+                    }
+                } else {
+                    // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
+
+                    if (isEditMode) {
+                        // Кнопка удаления теперь сразу после свитча
+                        Button(
+                            onClick = deleteItem,
+                            modifier = Modifier.size(52.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error
+                            ),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.delete),
+                                contentDescription = "Delete",
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
+                    }
+
+                    // Кнопка сохранения/обновления
+                    Button(
+                        onClick = { saveItem() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(34.dp),
+                        enabled = name.isNotBlank() && description.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
+                            else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = Color.White
+                        ),
+                    ) {
+                        Text(
+                            text = if (isEditMode) "Обновить" else "Сохранить",
+                            fontFamily = MyFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 18.sp
+                        )
+                    }
                 }
             }
         }
     }
 
-    // BottomSheet для перемещения
     if (showMoveBottomSheet && editingItem != null) {
         MoveItemBottomSheet(
             onDismiss = { showMoveBottomSheet = false },
