@@ -57,6 +57,7 @@ fun EditItemBottomSheet(
     folderId: String? = null,
     editingItem: Item? = null,
     onItemSaved: () -> Unit = {},
+    onItemDeleted: (() -> Unit)? = null,
     onMoveItem: ((String, String?) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -76,7 +77,6 @@ fun EditItemBottomSheet(
 
     // Состояние для модалки перемещения
     var showMoveBottomSheet by remember { mutableStateOf(false) }
-
     var showLanguageMenu by remember { mutableStateOf(false) }
 
     val isEditMode = editingItem != null
@@ -117,6 +117,14 @@ fun EditItemBottomSheet(
         }
     }
 
+    val deleteItem = {
+        if (isEditMode) {
+            itemManager.deleteItem(editingItem.id)
+            onItemDeleted?.invoke()
+            closeSheet()
+        }
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -138,6 +146,7 @@ fun EditItemBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                // Левая кнопка - Переместить (только в режиме редактирования)
                 if (isEditMode && onMoveItem != null) {
                     Button(
                         onClick = { showMoveBottomSheet = true },
@@ -155,6 +164,8 @@ fun EditItemBottomSheet(
                             modifier = Modifier.size(22.dp),
                         )
                     }
+                } else {
+                    Spacer(modifier = Modifier.size(44.dp))
                 }
 
                 Text(
@@ -203,12 +214,14 @@ fun EditItemBottomSheet(
                         maxLines = 3,
                         fontFamily = MyFontFamily,
                     )
+
                     Spacer(
                         Modifier
                             .height(1.dp)
                             .fillMaxWidth()
                             .background(MaterialTheme.colorScheme.background)
                     )
+
                     WordTextField(
                         value = example,
                         onValueChange = { example = it },
@@ -275,26 +288,52 @@ fun EditItemBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            Button(
-                onClick = { saveItem() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(34.dp),
-                enabled = name.isNotBlank() && description.isNotBlank(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
-                    else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (name.isNotBlank() && description.isNotBlank()) Color.White
-                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                ),
+            // Кнопки: Удалить и Обновить/Сохранить
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    if (isEditMode) "Обновить" else "Сохранить",
-                    fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp
-                )
+                if (isEditMode) {
+                    Button(
+                        onClick = deleteItem,
+                        modifier = Modifier.size(52.dp),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.delete),
+                            contentDescription = "Delete",
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+
+                // Кнопка Обновить/Сохранить
+                Button(
+                    onClick = { saveItem() },
+                    modifier = Modifier
+                        .weight(if (isEditMode) 1f else 1f)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(34.dp),
+                    enabled = name.isNotBlank() && description.isNotBlank(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
+                        else MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = if (name.isNotBlank() && description.isNotBlank()) Color.White
+                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    ),
+                ) {
+                    Text(
+                        if (isEditMode) "Обновить" else "Сохранить",
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp
+                    )
+                }
             }
         }
     }

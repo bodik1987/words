@@ -152,7 +152,6 @@ fun FolderScreen(
         )
     }
 
-    // BottomSheet для редактирования элемента
     if (showEditBottomSheet && editingItem != null) {
         EditItemBottomSheet(
             onDismiss = {
@@ -165,6 +164,9 @@ fun FolderScreen(
                 refreshWords()
                 showEditBottomSheet = false
                 editingItem = null
+            },
+            onItemDeleted = { // ДОБАВИТЬ ЭТО
+                refreshWords()
             },
             onMoveItem = moveItemToFolder
         )
