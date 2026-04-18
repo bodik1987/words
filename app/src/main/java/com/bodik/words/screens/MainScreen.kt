@@ -44,6 +44,11 @@ fun MainScreen(navController: NavHostController) {
         unassignedItems = itemManager.getUnassignedItems()
     }
 
+    val moveItemToFolder = { itemId: String, folderId: String? ->
+        itemManager.moveItemToFolder(itemId, folderId)
+        refreshUnassignedItems()
+    }
+
     Scaffold(
         topBar = { TopBar(onMenuClick = { showSettingsBottomSheet = true }) },
         floatingActionButton = {
@@ -57,7 +62,7 @@ fun MainScreen(navController: NavHostController) {
             paddingValues = paddingValues,
             navController = navController,
             folders = folders,
-            unassignedItems = unassignedItems,  // Передаем элементы без папки
+            unassignedItems = unassignedItems,
             onReorderFolders = { reorderedFolders ->
                 folderManager.saveFolders(reorderedFolders)
                 refreshFolders()
@@ -69,7 +74,8 @@ fun MainScreen(navController: NavHostController) {
             onDeleteItem = { itemId ->
                 itemManager.deleteItem(itemId)
                 refreshUnassignedItems()
-            }
+            },
+            onMoveItem = moveItemToFolder
         )
     }
 
@@ -101,7 +107,8 @@ fun MainScreen(navController: NavHostController) {
             folderId = null,
             onItemSaved = {
                 refreshUnassignedItems()
-            }
+            },
+            onMoveItem = moveItemToFolder  // Используем существующую функцию
         )
     }
 }

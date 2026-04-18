@@ -47,9 +47,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddItemBottomSheet(
     onDismiss: () -> Unit,
-    folderId: String? = null,  // ID папки, если создаем внутри папки
-    editingItem: Item? = null,  // Если передан - режим редактирования
-    onItemSaved: () -> Unit = {}  // Callback после сохранения
+    folderId: String? = null,
+    editingItem: Item? = null,
+    onItemSaved: () -> Unit = {},
+    onMoveItem: ((String, String?) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
@@ -66,6 +67,9 @@ fun AddItemBottomSheet(
         )
     }
 
+    // Состояние для модалки перемещения
+    var showMoveBottomSheet by remember { mutableStateOf(false) }
+
     var showLanguageMenu by remember { mutableStateOf(false) }
 
     val isEditMode = editingItem != null
@@ -81,7 +85,6 @@ fun AddItemBottomSheet(
     val saveItem = {
         if (name.isNotBlank() && description.isNotBlank()) {
             if (isEditMode && editingItem != null) {
-                // Редактирование существующего элемента
                 val updatedItem = editingItem.copy(
                     name = name,
                     description = description,
@@ -89,9 +92,8 @@ fun AddItemBottomSheet(
                     isAudioCard = isAudioCard,
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl"
                 )
-                itemManager.updateItem(updatedItem)  // Исправлено: itemManager
+                itemManager.updateItem(updatedItem)
             } else {
-                // Создание нового элемента
                 val newItem = Item(
                     id = System.currentTimeMillis().toString(),
                     name = name,
@@ -101,7 +103,7 @@ fun AddItemBottomSheet(
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
                     folderId = folderId
                 )
-                itemManager.addItem(newItem)  // Исправлено: itemManager
+                itemManager.addItem(newItem)
             }
             onItemSaved()
             closeSheet()
@@ -126,7 +128,7 @@ fun AddItemBottomSheet(
                 Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -136,6 +138,23 @@ fun AddItemBottomSheet(
                     fontSize = 20.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+
+                // Кнопка перемещения (только в режиме редактирования)
+                if (isEditMode && onMoveItem != null) {
+                    Button(
+                        onClick = { showMoveBottomSheet = true },
+                        shape = RoundedCornerShape(34.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                        )
+                    ) {
+                        Text(
+                            "📁 Переместить",
+                            fontFamily = MyFontFamily,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(24.dp))
@@ -152,7 +171,6 @@ fun AddItemBottomSheet(
                         .padding(vertical = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    // Название (слово/фраза)
                     WordTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -163,7 +181,6 @@ fun AddItemBottomSheet(
                         fontWeight = FontWeight.Medium
                     )
 
-                    // Описание (перевод/значение)
                     WordTextField(
                         value = description,
                         onValueChange = { description = it },
@@ -173,7 +190,6 @@ fun AddItemBottomSheet(
                         fontFamily = MyFontFamily,
                     )
 
-                    // Пример
                     WordTextField(
                         value = example,
                         onValueChange = { example = it },
@@ -190,7 +206,6 @@ fun AddItemBottomSheet(
                             .background(MaterialTheme.colorScheme.background)
                     )
 
-                    // Переключатель для аудиокарточки
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -210,7 +225,6 @@ fun AddItemBottomSheet(
                         )
                     }
 
-                    // Выбор языка (показываем только если включена аудиокарточка)
                     if (isAudioCard) {
                         Row(
                             modifier = Modifier
@@ -259,7 +273,6 @@ fun AddItemBottomSheet(
 
             Spacer(Modifier.height(24.dp))
 
-            // Кнопка сохранения
             Button(
                 onClick = { saveItem() },
                 modifier = Modifier
@@ -282,5 +295,19 @@ fun AddItemBottomSheet(
                 )
             }
         }
+    }
+
+    // BottomSheet для перемещения
+    if (showMoveBottomSheet && editingItem != null) {
+        MoveItemBottomSheet(
+            onDismiss = { showMoveBottomSheet = false },
+            itemId = editingItem.id,
+            currentFolderId = editingItem.folderId,
+            onMove = { itemId, newFolderId ->
+                onMoveItem?.invoke(itemId, newFolderId)
+                showMoveBottomSheet = false
+                closeSheet()
+            }
+        )
     }
 }

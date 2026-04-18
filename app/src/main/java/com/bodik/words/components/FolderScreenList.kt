@@ -26,7 +26,9 @@ import com.bodik.words.utils.ItemManager
 fun FolderScreenList(
     paddingValues: PaddingValues,
     folderId: String,
-    refreshTrigger: Int = 0  // Добавлен триггер для обновления
+    refreshTrigger: Int = 0,
+    onEditItem: ((Item) -> Unit)? = null,
+    onMoveItemCallback: ((String, String?) -> Unit)? = null  // Переименовали
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
@@ -66,8 +68,7 @@ fun FolderScreenList(
                         label = wordItem.name,
                         supportingText = wordItem.description,
                         onClick = { id ->
-                            editingItem = items.find { it.id == id }
-                            showEditBottomSheet = true
+                            onEditItem?.invoke(items.find { it.id == id }!!)
                         }
                     )
                 }
@@ -103,7 +104,8 @@ fun FolderScreenList(
                 refreshItems()
                 showEditBottomSheet = false
                 editingItem = null
-            }
+            },
+            onMoveItem = onMoveItemCallback
         )
     }
 }

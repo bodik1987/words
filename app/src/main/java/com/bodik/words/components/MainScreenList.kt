@@ -9,16 +9,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bodik.words.R
+import com.bodik.words.components.BottomSheets.AddItemBottomSheet
+import com.bodik.words.components.BottomSheets.MoveItemBottomSheet
 import com.bodik.words.data.Folder
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
+import com.bodik.words.utils.ItemManager
 
 @Composable
 fun MainScreenList(
@@ -28,8 +36,21 @@ fun MainScreenList(
     unassignedItems: List<Item>,
     onReorderFolders: (List<Folder>) -> Unit,
     onReorderItems: (List<Item>) -> Unit,
-    onDeleteItem: (String) -> Unit
+    onDeleteItem: (String) -> Unit,
+    onMoveItem: (String, String?) -> Unit
 ) {
+    val context = LocalContext.current
+    val itemManager = remember { ItemManager(context) }
+
+    // Состояния для редактирования
+    var showEditBottomSheet by remember { mutableStateOf(false) }
+    var editingItem by remember { mutableStateOf<Item?>(null) }
+
+    // Состояния для перемещения
+    var showMoveBottomSheet by remember { mutableStateOf(false) }
+    var movingItemId by remember { mutableStateOf<String?>(null) }
+    var movingItemCurrentFolder by remember { mutableStateOf<String?>(null) }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -77,8 +98,9 @@ fun MainScreenList(
                         label = item.name,
                         supportingText = item.description,
                         onClick = { id ->
-                            // Здесь можно открыть редактирование
-                        }
+                            editingItem = unassignedItems.find { it.id == id }
+                            showEditBottomSheet = true
+                        },
                     )
                 }
 
@@ -98,5 +120,39 @@ fun MainScreenList(
         item {
             Spacer(modifier = Modifier.height(80.dp))
         }
+    }
+
+    // BottomSheet для редактирования
+    if (showEditBottomSheet && editingItem != null) {
+        AddItemBottomSheet(
+            onDismiss = {
+                showEditBottomSheet = false
+                editingItem = null
+            },
+            folderId = editingItem?.folderId,
+            editingItem = editingItem,
+            onItemSaved = {
+                onReorderItems(unassignedItems)
+                showEditBottomSheet = false
+                editingItem = null
+            },
+            onMoveItem = onMoveItem
+        )
+    }
+
+    // BottomSheet для перемещения
+    if (showMoveBottomSheet && movingItemId != null) {
+        MoveItemBottomSheet(
+            onDismiss = {
+                showMoveBottomSheet = false
+                movingItemId = null
+                movingItemCurrentFolder = null
+            },
+            itemId = movingItemId!!,
+            currentFolderId = movingItemCurrentFolder,
+            onMove = { itemId, newFolderId ->
+                onMoveItem(itemId, newFolderId)
+            }
+        )
     }
 }

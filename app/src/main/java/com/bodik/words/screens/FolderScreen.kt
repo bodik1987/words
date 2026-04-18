@@ -44,6 +44,8 @@ fun FolderScreen(
 ) {
     var showAddItemBottomSheet by remember { mutableStateOf(false) }
     var showFolderBottomSheet by remember { mutableStateOf(false) }
+    var showEditBottomSheet by remember { mutableStateOf(false) }
+    var editingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
 
     // Состояние для обновления списка
     var refreshTrigger by remember { mutableStateOf(0) }
@@ -68,6 +70,12 @@ fun FolderScreen(
     // Функция для обновления списка слов
     val refreshWords = {
         refreshTrigger++
+    }
+
+    // Функция для перемещения элемента
+    val moveItemToFolder: (String, String?) -> Unit = { itemId, newFolderId ->
+        itemManager.moveItemToFolder(itemId, newFolderId)
+        refreshWords()
     }
 
     Scaffold(
@@ -119,21 +127,46 @@ fun FolderScreen(
     ) { paddingValues ->
         FolderScreenList(
             paddingValues = paddingValues,
-            folderId = folderId,  // Раскомментировано!
-            refreshTrigger = refreshTrigger  // Добавлен триггер обновления
+            folderId = folderId,
+            refreshTrigger = refreshTrigger,
+            onEditItem = { item ->
+                editingItem = item
+                showEditBottomSheet = true
+            },
+            onMoveItemCallback = moveItemToFolder  // Используем новое имя
         )
     }
 
+    // BottomSheet для создания нового элемента
     if (showAddItemBottomSheet) {
         AddItemBottomSheet(
             onDismiss = {
                 showAddItemBottomSheet = false
-                refreshWords()  // Обновляем список после закрытия
+                refreshWords()
             },
             folderId = folderId,
             onItemSaved = {
-                refreshWords()  // Обновляем список после сохранения
-            }
+                refreshWords()
+            },
+            onMoveItem = moveItemToFolder
+        )
+    }
+
+    // BottomSheet для редактирования элемента
+    if (showEditBottomSheet && editingItem != null) {
+        AddItemBottomSheet(
+            onDismiss = {
+                showEditBottomSheet = false
+                editingItem = null
+            },
+            folderId = folderId,
+            editingItem = editingItem,
+            onItemSaved = {
+                refreshWords()
+                showEditBottomSheet = false
+                editingItem = null
+            },
+            onMoveItem = moveItemToFolder
         )
     }
 
