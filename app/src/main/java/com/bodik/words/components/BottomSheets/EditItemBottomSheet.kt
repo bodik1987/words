@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,7 +66,6 @@ fun EditItemBottomSheet(
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
 
-    // Состояния формы
     var name by remember { mutableStateOf(editingItem?.name ?: "") }
     var description by remember { mutableStateOf(editingItem?.description ?: "") }
     var example by remember { mutableStateOf(editingItem?.example ?: "") }
@@ -77,9 +77,9 @@ fun EditItemBottomSheet(
         )
     }
 
-    // Состояние для модалки перемещения
     var showMoveBottomSheet by remember { mutableStateOf(false) }
     var showLanguageMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val isEditMode = editingItem != null
     var isReadOnly by remember { mutableStateOf(isEditMode) }
@@ -131,6 +131,53 @@ fun EditItemBottomSheet(
         }
     }
 
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            title = {
+                Text(
+                    text = "Удалить карточку?",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = "Это действие нельзя будет отменить. Вы уверены?",
+                    fontFamily = MyFontFamily
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        deleteItem() // Вызываем вашу существующую функцию удаления
+                    }
+                ) {
+                    Text(
+                        "Удалить",
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text(
+                        "Отмена",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
+    }
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -151,7 +198,22 @@ fun EditItemBottomSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (isEditMode && onMoveItem != null) {
-                        Spacer(Modifier.width(44.dp))
+                        Button(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.size(44.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.error
+                            ),
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.delete),
+                                contentDescription = "Delete",
+                                modifier = Modifier.size(22.dp),
+                            )
+                        }
                         Text(
                             text = titleText,
                             fontFamily = MyFontFamily,
@@ -350,29 +412,6 @@ fun EditItemBottomSheet(
                         }
                     }
                 } else {
-                    // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
-
-                    if (isEditMode) {
-                        // Кнопка удаления теперь сразу после свитча
-                        Button(
-                            onClick = deleteItem,
-                            modifier = Modifier.size(52.dp),
-                            shape = CircleShape,
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.error
-                            ),
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.delete),
-                                contentDescription = "Delete",
-                                modifier = Modifier.size(22.dp),
-                            )
-                        }
-                    }
-
-                    // Кнопка сохранения/обновления
                     Button(
                         onClick = { saveItem() },
                         modifier = Modifier
@@ -381,13 +420,13 @@ fun EditItemBottomSheet(
                         shape = RoundedCornerShape(34.dp),
                         enabled = name.isNotBlank() && description.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (name.isNotBlank() && description.isNotBlank()) Orange80
+                            containerColor = if (name.isNotBlank() && description.isNotBlank()) Blue80
                             else MaterialTheme.colorScheme.surfaceContainerHighest,
                             contentColor = Color.White
                         ),
                     ) {
                         Text(
-                            text = if (isEditMode) "Обновить" else "Сохранить",
+                            text = "Сохранить",
                             fontFamily = MyFontFamily,
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
