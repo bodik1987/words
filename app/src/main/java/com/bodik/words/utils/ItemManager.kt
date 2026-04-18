@@ -59,15 +59,12 @@ class ItemManager(context: Context) {
     }
 
     fun reorderItemsInFolder(folderId: String, reorderedItems: List<Item>) {
-        val allItems = getAllItems()
-        val updatedItems = allItems.map { item ->
-            if (item.folderId == folderId) {
-                reorderedItems.find { it.id == item.id } ?: item
-            } else {
-                item
-            }
-        }
-        saveItems(updatedItems)
+        val allItems = getAllItems().toMutableList()
+        // Удаляем все старые элементы этой папки
+        allItems.removeAll { it.folderId == folderId }
+        // Добавляем новые в нужном порядке
+        allItems.addAll(reorderedItems)
+        saveItems(allItems)
     }
 
     fun deleteAllItemsInFolder(folderId: String) {

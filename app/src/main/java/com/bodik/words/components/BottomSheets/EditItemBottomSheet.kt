@@ -57,7 +57,7 @@ fun EditItemBottomSheet(
     folderId: String? = null,
     editingItem: Item? = null,
     onItemSaved: () -> Unit = {},
-    onItemDeleted: (() -> Unit)? = null,
+    onItemDeleted: ((String) -> Unit)? = null,
     onMoveItem: ((String, String?) -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -119,8 +119,9 @@ fun EditItemBottomSheet(
 
     val deleteItem = {
         if (isEditMode) {
-            itemManager.deleteItem(editingItem.id)
-            onItemDeleted?.invoke()
+            val idToDelete = editingItem.id
+            itemManager.deleteItem(idToDelete)
+            onItemDeleted?.invoke(idToDelete)
             closeSheet()
         }
     }

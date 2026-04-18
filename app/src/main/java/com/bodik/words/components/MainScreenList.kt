@@ -36,7 +36,7 @@ fun MainScreenList(
     unassignedItems: List<Item>,
     onReorderFolders: (List<Folder>) -> Unit,
     onReorderItems: (List<Item>) -> Unit,
-    onDeleteItem: (String) -> Unit,
+    onDeleteItem: (String) -> Unit, // У вас уже есть этот коллбэк!
     onMoveItem: (String, String?) -> Unit
 ) {
     val context = LocalContext.current
@@ -123,7 +123,6 @@ fun MainScreenList(
         }
     }
 
-    // BottomSheet для редактирования
     if (showEditBottomSheet && editingItem != null) {
         EditItemBottomSheet(
             onDismiss = {
@@ -133,7 +132,12 @@ fun MainScreenList(
             folderId = editingItem?.folderId,
             editingItem = editingItem,
             onItemSaved = {
-                onReorderItems(unassignedItems)
+                onReorderItems(itemManager.getUnassignedItems())
+                showEditBottomSheet = false
+                editingItem = null
+            },
+            onItemDeleted = { itemId: String ->
+                onDeleteItem(itemId)
                 showEditBottomSheet = false
                 editingItem = null
             },

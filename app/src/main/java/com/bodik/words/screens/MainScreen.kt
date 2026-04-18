@@ -35,12 +35,11 @@ fun MainScreen(navController: NavHostController) {
     // Состояние для элементов без папки
     var unassignedItems by remember { mutableStateOf(itemManager.getUnassignedItems()) }
 
-    // Функции обновления
-    val refreshFolders = {
+    fun refreshFolders() {
         folders = folderManager.getFolders()
     }
 
-    val refreshUnassignedItems = {
+    fun refreshUnassignedItems() {
         unassignedItems = itemManager.getUnassignedItems()
     }
 
@@ -102,13 +101,14 @@ fun MainScreen(navController: NavHostController) {
         EditItemBottomSheet(
             onDismiss = {
                 showAddItemBottomSheet = false
-                refreshUnassignedItems()
             },
             folderId = null,
+            editingItem = null, // Явно передаем null для режима создания
             onItemSaved = {
                 refreshUnassignedItems()
+                showAddItemBottomSheet = false // Закрываем после сохранения
             },
-            onMoveItem = moveItemToFolder  // Используем существующую функцию
+            onMoveItem = moveItemToFolder
         )
     }
 }
