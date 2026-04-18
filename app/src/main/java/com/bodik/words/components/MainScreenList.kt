@@ -1,5 +1,8 @@
 package com.bodik.words.components
 
+import android.speech.tts.TextToSpeech
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.ItemBottomSheet
@@ -27,6 +33,7 @@ import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
 import com.bodik.words.utils.ItemManager
+import java.util.Locale
 
 @Composable
 fun MainScreenList(
@@ -91,11 +98,62 @@ fun MainScreenList(
             item { Spacer(Modifier.height(24.dp)) }
             item { LabelText("Слова") }
             item {
+                val context = LocalContext.current
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
                 val itemMenuItems = unassignedItems.map { item ->
                     IslandListItem(
                         id = item.id,
                         label = item.name,
                         supportingText = item.description,
+                        leadingContent = if (item.isAudioCard) {
+                            {
+                                val tts = remember {
+                                    var ttsInstance: TextToSpeech? = null
+                                    ttsInstance = TextToSpeech(context) { status ->
+                                        if (status == TextToSpeech.SUCCESS) {
+                                            ttsInstance?.language =
+                                                Locale.forLanguageTag(item.targetLanguage)
+                                        }
+                                    }
+                                    ttsInstance
+                                }
+
+                                DisposableEffect(lifecycleOwner) {
+                                    val observer = LifecycleEventObserver { _, event ->
+                                        if (event == Lifecycle.Event.ON_PAUSE) {
+                                            tts.stop()
+                                        }
+                                    }
+                                    lifecycleOwner.lifecycle.addObserver(observer)
+                                    onDispose {
+                                        lifecycleOwner.lifecycle.removeObserver(observer)
+                                        tts.stop()
+                                        tts.shutdown()
+                                    }
+                                }
+
+                                Icon(
+                                    painter = painterResource(id = R.drawable.volume),
+                                    contentDescription = "Speak",
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) {
+                                            tts.language =
+                                                Locale.forLanguageTag(item.targetLanguage)
+                                            tts.speak(
+                                                item.name,
+                                                TextToSpeech.QUEUE_FLUSH,
+                                                null,
+                                                null
+                                            )
+                                        }
+                                )
+                            }
+                        } else null,
                         example = item.example,
                         onClick = { id ->
                             editingItem = unassignedItems.find { it.id == id }

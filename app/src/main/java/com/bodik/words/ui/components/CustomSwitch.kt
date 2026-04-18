@@ -45,7 +45,7 @@ fun CustomSwitch(
             .background(if (checked) Color(0xFF62BE63) else Color(0xFFE2E2E4))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null // <-- убирает серое наложение
+                indication = null
             ) { onCheckedChange(!checked) },
         contentAlignment = Alignment.CenterStart
     ) {
