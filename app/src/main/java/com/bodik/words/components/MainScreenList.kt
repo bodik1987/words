@@ -32,6 +32,7 @@ import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
+import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.utils.ItemManager
 import java.util.Locale
 
@@ -63,7 +64,6 @@ fun MainScreenList(
             .fillMaxSize()
             .padding(paddingValues)
     ) {
-        // Секция папок
         item { LabelText("Папки") }
         item {
             val menuItems = folders.map { folder ->
@@ -96,10 +96,33 @@ fun MainScreenList(
 
         if (unassignedItems.isNotEmpty()) {
             item { Spacer(Modifier.height(24.dp)) }
-            item { LabelText("Слова") }
             item {
                 val context = LocalContext.current
                 val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+
+                val tts = remember {
+                    var ttsInstance: TextToSpeech? = null
+                    ttsInstance = TextToSpeech(context) { status ->
+                        if (status == TextToSpeech.SUCCESS) {
+                            ttsInstance?.language = Locale.forLanguageTag("pl")
+                        }
+                    }
+                    ttsInstance
+                }
+
+                DisposableEffect(lifecycleOwner) {
+                    val observer = LifecycleEventObserver { _, event ->
+                        if (event == Lifecycle.Event.ON_PAUSE) {
+                            tts.stop()
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
+                        tts.stop()
+                        tts.shutdown()
+                    }
+                }
 
                 val itemMenuItems = unassignedItems.map { item ->
                     IslandListItem(
@@ -108,34 +131,10 @@ fun MainScreenList(
                         supportingText = item.description,
                         leadingContent = if (item.isAudioCard) {
                             {
-                                val tts = remember {
-                                    var ttsInstance: TextToSpeech? = null
-                                    ttsInstance = TextToSpeech(context) { status ->
-                                        if (status == TextToSpeech.SUCCESS) {
-                                            ttsInstance?.language =
-                                                Locale.forLanguageTag(item.targetLanguage)
-                                        }
-                                    }
-                                    ttsInstance
-                                }
-
-                                DisposableEffect(lifecycleOwner) {
-                                    val observer = LifecycleEventObserver { _, event ->
-                                        if (event == Lifecycle.Event.ON_PAUSE) {
-                                            tts.stop()
-                                        }
-                                    }
-                                    lifecycleOwner.lifecycle.addObserver(observer)
-                                    onDispose {
-                                        lifecycleOwner.lifecycle.removeObserver(observer)
-                                        tts.stop()
-                                        tts.shutdown()
-                                    }
-                                }
-
                                 Icon(
                                     painter = painterResource(id = R.drawable.volume),
                                     contentDescription = "Speak",
+                                    tint = Blue80,
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clickable(
