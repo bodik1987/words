@@ -4,22 +4,25 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -32,11 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.R
 import com.bodik.words.data.Item
 import com.bodik.words.data.Language
+import com.bodik.words.ui.components.CustomSwitch
 import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
@@ -45,7 +51,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemBottomSheet(
+fun EditItemBottomSheet(
     onDismiss: () -> Unit,
     folderId: String? = null,
     editingItem: Item? = null,
@@ -62,7 +68,7 @@ fun AddItemBottomSheet(
     var isAudioCard by remember { mutableStateOf(editingItem?.isAudioCard ?: false) }
     var selectedLanguage by remember {
         mutableStateOf(
-            Language.values().find { it.code == (editingItem?.targetLanguage ?: "pl") }
+            Language.entries.find { it.code == (editingItem?.targetLanguage ?: "pl") }
                 ?: Language.PL
         )
     }
@@ -84,7 +90,7 @@ fun AddItemBottomSheet(
 
     val saveItem = {
         if (name.isNotBlank() && description.isNotBlank()) {
-            if (isEditMode && editingItem != null) {
+            if (isEditMode) {
                 val updatedItem = editingItem.copy(
                     name = name,
                     description = description,
@@ -139,19 +145,21 @@ fun AddItemBottomSheet(
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                // Кнопка перемещения (только в режиме редактирования)
                 if (isEditMode && onMoveItem != null) {
                     Button(
                         onClick = { showMoveBottomSheet = true },
-                        shape = RoundedCornerShape(34.dp),
+                        modifier = Modifier.size(40.dp),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onBackground
                         )
                     ) {
-                        Text(
-                            "📁 Переместить",
-                            fontFamily = MyFontFamily,
-                            fontSize = 14.sp
+                        Icon(
+                            painter = painterResource(id = R.drawable.folder),
+                            contentDescription = "Move",
+                            modifier = Modifier.size(22.dp),
                         )
                     }
                 }
@@ -189,7 +197,12 @@ fun AddItemBottomSheet(
                         maxLines = 3,
                         fontFamily = MyFontFamily,
                     )
-
+                    Spacer(
+                        Modifier
+                            .height(1.dp)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
+                    )
                     WordTextField(
                         value = example,
                         onValueChange = { example = it },
@@ -209,7 +222,7 @@ fun AddItemBottomSheet(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 24.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -219,9 +232,9 @@ fun AddItemBottomSheet(
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onBackground
                         )
-                        Switch(
+                        CustomSwitch(
                             checked = isAudioCard,
-                            onCheckedChange = { isAudioCard = it }
+                            onCheckedChange = { isAudioCard = it },
                         )
                     }
 
@@ -230,7 +243,7 @@ fun AddItemBottomSheet(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable { showLanguageMenu = true }
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {

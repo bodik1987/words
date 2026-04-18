@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.bodik.words.components.BottomSheets.AddItemBottomSheet
+import com.bodik.words.components.BottomSheets.EditItemBottomSheet
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
@@ -93,7 +93,7 @@ fun FolderScreenList(
     }
 
     if (showEditBottomSheet && editingItem != null) {
-        AddItemBottomSheet(
+        EditItemBottomSheet(
             onDismiss = {
                 showEditBottomSheet = false
                 editingItem = null

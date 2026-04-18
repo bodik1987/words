@@ -10,7 +10,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.bodik.words.components.BottomSheets.AddFolderBottomSheet
-import com.bodik.words.components.BottomSheets.AddItemBottomSheet
+import com.bodik.words.components.BottomSheets.EditItemBottomSheet
 import com.bodik.words.components.BottomSheets.SettingsBottomSheet
 import com.bodik.words.components.MainScreenFloatingButtons
 import com.bodik.words.components.MainScreenList
@@ -99,7 +99,7 @@ fun MainScreen(navController: NavHostController) {
     }
 
     if (showAddItemBottomSheet) {
-        AddItemBottomSheet(
+        EditItemBottomSheet(
             onDismiss = {
                 showAddItemBottomSheet = false
                 refreshUnassignedItems()
