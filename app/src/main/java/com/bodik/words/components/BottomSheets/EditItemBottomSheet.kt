@@ -138,6 +138,25 @@ fun EditItemBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (isEditMode && onMoveItem != null) {
+                    Button(
+                        onClick = { showMoveBottomSheet = true },
+                        modifier = Modifier.size(44.dp),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                            contentColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.folder),
+                            contentDescription = "Move",
+                            modifier = Modifier.size(22.dp),
+                        )
+                    }
+                }
+
                 Text(
                     text = titleText,
                     fontFamily = MyFontFamily,
@@ -146,34 +165,10 @@ fun EditItemBottomSheet(
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (isEditMode && onMoveItem != null) {
-                        Button(
-                            onClick = { showMoveBottomSheet = true },
-                            modifier = Modifier.size(40.dp),
-                            shape = CircleShape,
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                                contentColor = MaterialTheme.colorScheme.onBackground
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.folder),
-                                contentDescription = "Move",
-                                modifier = Modifier.size(22.dp),
-                            )
-                        }
-                    }
-
-                    CustomSwitch(
-                        checked = isAudioCard,
-                        onCheckedChange = { isAudioCard = it },
-                    )
-                }
+                CustomSwitch(
+                    checked = isAudioCard,
+                    onCheckedChange = { isAudioCard = it },
+                )
             }
 
             Spacer(Modifier.height(24.dp))

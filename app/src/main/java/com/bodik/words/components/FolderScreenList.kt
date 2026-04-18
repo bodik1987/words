@@ -67,6 +67,7 @@ fun FolderScreenList(
                         id = wordItem.id,
                         label = wordItem.name,
                         supportingText = wordItem.description,
+                        example = wordItem.example,
                         onClick = { id ->
                             onEditItem?.invoke(items.find { it.id == id }!!)
                         }

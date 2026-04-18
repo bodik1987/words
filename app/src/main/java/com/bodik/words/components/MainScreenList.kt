@@ -97,6 +97,7 @@ fun MainScreenList(
                         id = item.id,
                         label = item.name,
                         supportingText = item.description,
+                        example = item.example,
                         onClick = { id ->
                             editingItem = unassignedItems.find { it.id == id }
                             showEditBottomSheet = true

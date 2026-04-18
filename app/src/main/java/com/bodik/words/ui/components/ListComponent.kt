@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import sh.calvin.reorderable.ReorderableColumn
@@ -69,6 +71,7 @@ data class IslandListItem(
     val id: String,
     val label: String,
     val supportingText: String? = null,
+    val example: String? = null,
     val leadingContent: (@Composable () -> Unit)? = null,
     val trailingContent: (@Composable () -> Unit)? = null,
     val onClick: (String) -> Unit = {},
@@ -138,14 +141,26 @@ fun IslandColumn(
             ListItem(
                 headlineContent = {
                     Text(
-                        item.label, fontFamily = MyFontFamily,
+                        text = item.label,
+                        fontFamily = MyFontFamily,
                     )
                 },
-                supportingContent = item.supportingText?.let {
-                    {
-                        Text(
-                            it, fontFamily = MyFontFamily,
-                        )
+                supportingContent = {
+                    Column {
+                        if (!item.supportingText.isNullOrBlank()) {
+                            Text(
+                                text = item.supportingText,
+                                fontFamily = MyFontFamily,
+                            )
+                        }
+                        if (!item.example.isNullOrBlank()) {
+                            Text(
+                                text = item.example,
+                                fontFamily = MyFontFamily,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                            )
+                        }
                     }
                 },
                 leadingContent = item.leadingContent,
@@ -227,15 +242,29 @@ fun ReorderableIslandColumn(
                     headlineContent = {
                         Text(
                             item.label,
+                            fontWeight = FontWeight.Medium,
                             fontFamily = MyFontFamily,
                         )
                     },
-                    supportingContent = item.supportingText?.let {
-                        {
-                            Text(
-                                it,
-                                fontFamily = MyFontFamily,
-                            )
+                    supportingContent = {
+                        Column {
+                            // Отображаем supportingText (перевод/значение)
+                            if (!item.supportingText.isNullOrBlank()) {
+                                Text(
+                                    text = item.supportingText,
+                                    fontFamily = MyFontFamily,
+                                    fontSize = 16.sp,
+                                )
+                            }
+                            // Отображаем пример, если он есть
+                            if (!item.example.isNullOrBlank()) {
+                                Text(
+                                    text = item.example,
+                                    fontFamily = MyFontFamily,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                                )
+                            }
                         }
                     },
                     leadingContent = item.leadingContent,
