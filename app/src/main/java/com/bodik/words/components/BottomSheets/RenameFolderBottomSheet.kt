@@ -37,11 +37,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFolderBottomSheet(
+fun RenameFolderBottomSheet(
+    folderName: String,
     onDismiss: () -> Unit,
-    onFolderAdded: (String) -> Unit
+    onRenameFolder: (String) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf(folderName) }  // 👈 предзаполнено
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -69,7 +70,7 @@ fun AddFolderBottomSheet(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .padding(horizontal = 16.dp)
-                    .padding(bottom = 20.dp),
+                    .padding(bottom = 24.dp),
             ) {
                 Row(
                     Modifier
@@ -79,7 +80,7 @@ fun AddFolderBottomSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Добавить папку",
+                        text = "Переименовать папку",  // 👈
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
@@ -87,7 +88,7 @@ fun AddFolderBottomSheet(
                     )
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -112,12 +113,14 @@ fun AddFolderBottomSheet(
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(24.dp))
+
+                val isChanged = title.isNotBlank() && title.trim() != folderName  // 👈
 
                 Button(
                     onClick = {
-                        if (title.isNotBlank()) {
-                            onFolderAdded(title)
+                        if (isChanged) {
+                            onRenameFolder(title.trim())
                             closeSheet()
                         }
                     },
@@ -125,11 +128,11 @@ fun AddFolderBottomSheet(
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(34.dp),
-                    enabled = title.isNotBlank(),
+                    enabled = isChanged,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (title.isNotBlank()) Orange80
+                        containerColor = if (isChanged) Orange80
                         else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = if (title.isNotBlank()) Color.White
+                        contentColor = if (isChanged) Color.White
                         else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     ),
                 ) {
@@ -144,4 +147,3 @@ fun AddFolderBottomSheet(
         }
     }
 }
-
