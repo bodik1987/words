@@ -45,7 +45,7 @@ fun FolderScreenFloatingButton(onAddItemClick: () -> Unit = {}) {
         ) {
             FloatingActionButton(
                 onClick = onAddItemClick,
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(54.dp),
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 contentColor = MaterialTheme.colorScheme.onBackground,
@@ -53,7 +53,7 @@ fun FolderScreenFloatingButton(onAddItemClick: () -> Unit = {}) {
                 Icon(
                     painter = painterResource(id = R.drawable.plus),
                     contentDescription = "Новое слово",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(34.dp)
                 )
             }
         }

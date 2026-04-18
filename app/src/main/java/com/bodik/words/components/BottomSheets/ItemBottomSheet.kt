@@ -299,7 +299,7 @@ fun ItemBottomSheet(
                         onValueChange = { description = it },
                         placeholder = "Перевод/значение",
                         fontSize = 18.sp,
-                        maxLines = 6,
+                        maxLines = 15,
                         readOnly = isReadOnly,
                         fontFamily = MyFontFamily,
                     )

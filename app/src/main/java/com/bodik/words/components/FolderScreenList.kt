@@ -28,7 +28,6 @@ import com.bodik.words.R
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.ReorderableIslandColumn
-import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.utils.ItemManager
 import java.util.Locale
 
@@ -99,7 +98,6 @@ fun FolderScreenList(
                                 Icon(
                                     painter = painterResource(id = R.drawable.volume),
                                     contentDescription = "Speak",
-                                    tint = Blue80,
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clickable(

@@ -65,7 +65,6 @@ fun MoveItemBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-//        containerColor = MaterialTheme.colorScheme.background,
         containerColor = Color.Transparent,
         dragHandle = null,
     ) {
@@ -100,14 +99,12 @@ fun MoveItemBottomSheet(
                     )
                 }
 
-                // Остров со списком папок
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        // 1. Опция "Без папки"
                         FolderIslandItem(
                             name = "Без папки",
                             isSelected = selectedFolderId == null,
@@ -116,7 +113,6 @@ fun MoveItemBottomSheet(
                             onClick = { selectedFolderId = null }
                         )
 
-                        // 2. Список существующих папок
                         folders.forEachIndexed { index, folder ->
                             Spacer(
                                 Modifier
@@ -137,7 +133,6 @@ fun MoveItemBottomSheet(
 
                 Spacer(Modifier.height(24.dp))
 
-                // Кнопка подтверждения
                 Button(
                     onClick = {
                         if (selectedFolderId != currentFolderId) {
@@ -203,11 +198,11 @@ private fun FolderIslandItem(
             }
         },
         colors = androidx.compose.material3.ListItemDefaults.colors(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent
+            containerColor = Color.Transparent
         ),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 4.dp) // Небольшой внутренний отступ для удобства
+            .padding(vertical = 4.dp)
     )
 }

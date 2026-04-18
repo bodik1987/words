@@ -29,10 +29,7 @@ fun MainScreen(navController: NavHostController) {
     val folderManager = remember { FolderManager(context) }
     val itemManager = remember { ItemManager(context) }
 
-    // Состояние для папок
     var folders by remember { mutableStateOf(folderManager.getFolders()) }
-
-    // Состояние для элементов без папки
     var unassignedItems by remember { mutableStateOf(itemManager.getUnassignedItems()) }
 
     fun refreshFolders() {
@@ -48,8 +45,20 @@ fun MainScreen(navController: NavHostController) {
         refreshUnassignedItems()
     }
 
+    var searchQuery by remember { mutableStateOf("") }
+
+    val searchResults = remember(searchQuery, unassignedItems, folders) {
+        if (searchQuery.isBlank()) emptyList()
+        else itemManager.searchItems(searchQuery, folders)
+    }
+
     Scaffold(
-        topBar = { TopBar(onMenuClick = { showSettingsBottomSheet = true }) },
+        topBar = {
+            TopBar(
+                onMenuClick = { showSettingsBottomSheet = true },
+                searchQuery = searchQuery,
+                onSearchQueryChange = { searchQuery = it })
+        },
         floatingActionButton = {
             MainScreenFloatingButtons(
                 onAddFolderClick = { showAddFolderBottomSheet = true },
@@ -74,13 +83,19 @@ fun MainScreen(navController: NavHostController) {
                 itemManager.deleteItem(itemId)
                 refreshUnassignedItems()
             },
-            onMoveItem = moveItemToFolder
+            onMoveItem = moveItemToFolder,
+            searchQuery = searchQuery,
+            searchResults = searchResults
         )
     }
 
     if (showSettingsBottomSheet) {
         SettingsBottomSheet(
             onDismiss = { showSettingsBottomSheet = false },
+            onImportDone = {
+                refreshFolders()
+                refreshUnassignedItems()
+            }
         )
     }
 

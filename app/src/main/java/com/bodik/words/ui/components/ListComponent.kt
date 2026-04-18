@@ -248,7 +248,6 @@ fun ReorderableIslandColumn(
                     },
                     supportingContent = {
                         Column {
-                            // Отображаем supportingText (перевод/значение)
                             if (!item.supportingText.isNullOrBlank()) {
                                 Text(
                                     text = item.supportingText,

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,13 +41,13 @@ fun MainScreenFloatingButtons(onAddFolderClick: () -> Unit = {}, onAddItemClick:
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.End),
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End),
             verticalAlignment = Alignment.CenterVertically
         ) {
             FloatingActionButton(
                 onClick = onAddFolderClick,
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.size(46.dp),
+                shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 contentColor = Orange80,
             ) {
@@ -61,7 +60,7 @@ fun MainScreenFloatingButtons(onAddFolderClick: () -> Unit = {}, onAddItemClick:
             }
             FloatingActionButton(
                 onClick = onAddItemClick,
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(54.dp),
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 contentColor = MaterialTheme.colorScheme.onBackground,
@@ -69,7 +68,7 @@ fun MainScreenFloatingButtons(onAddFolderClick: () -> Unit = {}, onAddItemClick:
                 Icon(
                     painter = painterResource(id = R.drawable.plus),
                     contentDescription = "Новое слово",
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(34.dp)
                 )
             }
         }
