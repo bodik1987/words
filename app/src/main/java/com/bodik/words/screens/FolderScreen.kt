@@ -55,7 +55,9 @@ fun FolderScreen(
     val folder = remember(folderId) {
         folderManager.getFolders().find { it.id == folderId }
     }
-    val folderName = folder?.name ?: "Папка"
+    var folderName by remember(folderId) {
+        mutableStateOf(folderManager.getFolders().find { it.id == folderId }?.name ?: "Папка")
+    }
 
     val refreshWords = { refreshTrigger++ }
 
@@ -166,6 +168,11 @@ fun FolderScreen(
             onDeleteFolder = {
                 folderManager.deleteFolder(folderId)
                 onBack()
+            },
+            onRenameFolder = { newName ->       // 👈
+                folderManager.renameFolder(folderId, newName)
+                folderName = newName            // 👈 обновляем TopAppBar сразу
+                showFolderBottomSheet = false
             }
         )
     }

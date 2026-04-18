@@ -13,6 +13,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -34,12 +35,15 @@ import kotlinx.coroutines.launch
 fun FolderBottomSheet(
     onDismiss: () -> Unit,
     folderName: String,
-    onDeleteFolder: () -> Unit
+    onDeleteFolder: () -> Unit,
+    onRenameFolder: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var newName by remember { mutableStateOf(folderName) }
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
@@ -61,7 +65,7 @@ fun FolderBottomSheet(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { closeSheet() },
+                onClick = { showRenameDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -100,6 +104,56 @@ fun FolderBottomSheet(
                 )
             }
         }
+    }
+
+    if (showRenameDialog) {
+        AlertDialog(
+            onDismissRequest = { showRenameDialog = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            title = {
+                Text(
+                    text = "Переименовать папку",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                OutlinedTextField(
+                    value = newName,
+                    onValueChange = { newName = it },
+                    singleLine = true,
+                    label = { Text("Название папки", fontFamily = MyFontFamily) }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (newName.isNotBlank()) {
+                            onRenameFolder(newName.trim())
+                            showRenameDialog = false
+                            closeSheet()
+                        }
+                    }
+                ) {
+                    Text(
+                        "Сохранить",
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRenameDialog = false }) {
+                    Text(
+                        "Отмена",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
     }
 
     if (showDeleteDialog) {
