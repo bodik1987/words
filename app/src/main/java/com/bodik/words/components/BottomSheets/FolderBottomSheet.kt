@@ -7,15 +7,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,11 +33,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun FolderBottomSheet(
     onDismiss: () -> Unit,
-    folderName: String,  // Добавьте название папки
-    onDeleteFolder: () -> Unit  // Добавьте callback для удаления
+    folderName: String,
+    onDeleteFolder: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
@@ -53,9 +61,7 @@ fun FolderBottomSheet(
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = {
-                    closeSheet()      // Закрываем bottom sheet
-                },
+                onClick = { closeSheet() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -76,10 +82,7 @@ fun FolderBottomSheet(
             Spacer(Modifier.height(8.dp))
 
             Button(
-                onClick = {
-                    onDeleteFolder()  // Вызываем удаление
-                    closeSheet()      // Закрываем bottom sheet
-                },
+                onClick = { showDeleteDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -97,5 +100,53 @@ fun FolderBottomSheet(
                 )
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            title = {
+                Text(
+                    text = "Удалить папку?",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = "Вы собираетесь удалить папку. Все слова в ней также будут удалены. Это действие нельзя отменить.",
+                    fontFamily = MyFontFamily
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        onDeleteFolder()
+                        closeSheet()
+                    }
+                ) {
+                    Text(
+                        "Удалить",
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text(
+                        "Отмена",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
     }
 }

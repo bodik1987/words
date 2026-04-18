@@ -382,8 +382,6 @@ fun EditItemBottomSheet(
                 }
 
                 if (isReadOnly) {
-                    // --- РЕЖИМ ПРОСМОТРА ---
-
                     Text(
                         text = "Редактировать",
                         fontFamily = MyFontFamily,

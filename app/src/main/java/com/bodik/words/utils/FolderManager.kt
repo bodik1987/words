@@ -35,6 +35,17 @@ class FolderManager(private val context: Context) {  // Сразу сохран�
         return newFolder
     }
 
+    fun renameFolder(folderId: String, newName: String) {
+        val folders = getFolders().map { folder ->
+            if (folder.id == folderId) {
+                folder.copy(name = newName) // Создаем копию папки с новым именем
+            } else {
+                folder
+            }
+        }
+        saveFolders(folders)
+    }
+
     fun deleteFolder(folderId: String) {
         val folders = getFolders().filter { it.id != folderId }
         saveFolders(folders)
