@@ -42,8 +42,4 @@ class FolderManager(private val context: Context) {  // Сразу сохран�
         val itemManager = ItemManager(context)  // context доступен как свойство класса
         itemManager.deleteAllItemsInFolder(folderId)
     }
-
-    fun getFolderName(folderId: String): String {
-        return getFolders().find { it.id == folderId }?.name ?: "Папка"
-    }
 }
