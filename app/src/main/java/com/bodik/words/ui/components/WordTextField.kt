@@ -40,6 +40,7 @@ fun WordTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     fontSize: TextUnit,
+    modifier: Modifier = Modifier, // ДОБАВЛЕНО
     maxLines: Int = 1,
     fontFamily: FontFamily? = null,
     fontWeight: FontWeight? = null,
@@ -50,10 +51,8 @@ fun WordTextField(
     val linkColor = MaterialTheme.colorScheme.primary
     val uriHandler = LocalUriHandler.current
 
-    // Состояние диалога — храним URL, по которому кликнули (null = диалог закрыт)
     var pendingUrl by remember { mutableStateOf<String?>(null) }
 
-    // Диалог показывается поверх всего компонента
     pendingUrl?.let { url ->
         AlertDialog(
             onDismissRequest = { pendingUrl = null },
@@ -70,11 +69,7 @@ fun WordTextField(
                     uriHandler.openUri(url)
                     pendingUrl = null
                 }) {
-                    Text(
-                        "Перейти",
-                        fontFamily = MyFontFamily,
-                        color = Blue80
-                    )
+                    Text("Перейти", fontFamily = MyFontFamily, color = Blue80)
                 }
             },
             dismissButton = {
@@ -89,7 +84,6 @@ fun WordTextField(
         )
     }
 
-    // Вспомогательная лямбда — открывает диалог вместо прямого перехода
     fun onLinkClick(url: String) {
         pendingUrl = url
     }
@@ -103,9 +97,9 @@ fun WordTextField(
         val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
 
         Box(
-            modifier = Modifier
+            modifier = modifier // ИСПОЛЬЗУЕМ ВНЕШНИЙ МОДИФИКАТОР
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
                 .then(
                     if (isLinkHighlightingEnabled) {
                         Modifier.pointerInput(annotatedString) {
@@ -176,9 +170,9 @@ fun WordTextField(
                 capitalization = KeyboardCapitalization.Sentences
             ),
             onTextLayout = { layoutResult.value = it },
-            modifier = Modifier
+            modifier = modifier // ИСПОЛЬЗУЕМ ВНЕШНИЙ МОДИФИКАТОР
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 16.dp)
                 .then(
                     if (isLinkHighlightingEnabled) {
                         Modifier.pointerInput(annotatedString) {

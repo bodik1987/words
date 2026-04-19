@@ -244,6 +244,7 @@ fun ReorderableIslandColumn(
                             item.label,
                             fontWeight = FontWeight.Medium,
                             fontFamily = MyFontFamily,
+                            fontSize = 18.sp,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
