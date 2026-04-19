@@ -53,4 +53,5 @@ dependencies {
     implementation(libs.reorderable)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.lottie.compose)
 }

@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.FolderBottomSheet
 import com.bodik.words.components.BottomSheets.ItemBottomSheet
@@ -38,6 +39,7 @@ import com.bodik.words.utils.ItemManager
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderScreen(
+    navController: NavHostController,
     folderId: String,
     onBack: () -> Unit,
 ) {
@@ -167,7 +169,8 @@ fun FolderScreen(
                 folderManager.renameFolder(folderId, newName)
                 folderName = newName
                 showFolderBottomSheet = false
-            }
+            },
+            onStudy = { navController?.navigate("study/$folderId") }
         )
     }
 }

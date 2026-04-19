@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bodik.words.screens.FolderScreen
 import com.bodik.words.screens.MainScreen
+import com.bodik.words.screens.StudyScreen
 import com.bodik.words.ui.theme.WordsTheme
 
 class MainActivity : ComponentActivity() {
@@ -60,6 +61,17 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val folderId = backStackEntry.arguments?.getString("folderId") ?: ""
                         FolderScreen(
+                            navController = navController,
+                            folderId = folderId,
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable(
+                        route = "study/{folderId}",
+                        arguments = listOf(navArgument("folderId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val folderId = backStackEntry.arguments?.getString("folderId") ?: ""
+                        StudyScreen(
                             folderId = folderId,
                             onBack = { navController.popBackStack() }
                         )
