@@ -227,23 +227,20 @@ fun MainScreenList(
 
     if (showEditBottomSheet && editingItem != null) {
         ItemBottomSheet(
+            item = editingItem!!, // Передаем объект Item
             onDismiss = {
                 showEditBottomSheet = false
                 editingItem = null
             },
-            folderId = editingItem?.folderId,
-            editingItem = editingItem,
-            onItemSaved = {
-                onReorderItems(itemManager.getUnassignedItems())
+            onEditClick = {
+                // Закрываем шторку и переходим на экран редактирования
                 showEditBottomSheet = false
+                val itemId = editingItem?.id
+                if (itemId != null) {
+                    navController.navigate("item/edit/$itemId")
+                }
                 editingItem = null
-            },
-            onItemDeleted = { itemId: String ->
-                onDeleteItem(itemId)
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            onMoveItem = onMoveItem
+            }
         )
     }
 

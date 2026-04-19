@@ -43,10 +43,9 @@ fun FolderScreen(
     folderId: String,
     onBack: () -> Unit,
 ) {
-    var showAddItemBottomSheet by remember { mutableStateOf(false) }
+    var showViewBottomSheet by remember { mutableStateOf(false) }
     var showFolderBottomSheet by remember { mutableStateOf(false) }
-    var showEditBottomSheet by remember { mutableStateOf(false) }
-    var editingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
+    var viewingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
     var refreshTrigger by remember { mutableIntStateOf(0) }
 
     val context = LocalContext.current
@@ -106,7 +105,10 @@ fun FolderScreen(
             )
         },
         floatingActionButton = {
-            FolderScreenFloatingButton(onAddItemClick = { showAddItemBottomSheet = true })
+            // Добавление — сразу на экран
+            FolderScreenFloatingButton(
+                onAddItemClick = { navController.navigate("item/add/$folderId") }
+            )
         }
     ) { paddingValues ->
         FolderScreenList(
@@ -114,45 +116,28 @@ fun FolderScreen(
             folderId = folderId,
             refreshTrigger = refreshTrigger,
             onEditItem = { item ->
-                editingItem = item
-                showEditBottomSheet = true
+                // Открываем просмотр в BottomSheet
+                viewingItem = item
+                showViewBottomSheet = true
             }
         )
     }
 
-    if (showAddItemBottomSheet) {
+    // Просмотр карточки — только BottomSheet
+    if (showViewBottomSheet && viewingItem != null) {
         ItemBottomSheet(
-            onDismiss = { showAddItemBottomSheet = false },
-            folderId = folderId,
-            onItemSaved = {
-                refreshWords()
-            },
-            onMoveItem = moveItemToFolder
-        )
-    }
-
-    if (showEditBottomSheet && editingItem != null) {
-        ItemBottomSheet(
+            item = viewingItem!!,
             onDismiss = {
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            folderId = folderId,
-            editingItem = editingItem,
-            onItemSaved = {
+                showViewBottomSheet = false
+                viewingItem = null
+                // Обновляем список после возможного редактирования
                 refreshWords()
-                showEditBottomSheet = false
-                editingItem = null
             },
-            onItemDeleted = {
-                refreshWords()
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            onMoveItem = { itemId, newFolderId ->
-                moveItemToFolder(itemId, newFolderId)
-                showEditBottomSheet = false
-                editingItem = null
+            onEditClick = {
+                // Переходим на экран редактирования
+                showViewBottomSheet = false
+                navController.navigate("item/edit/${viewingItem!!.id}")
+                viewingItem = null
             }
         )
     }
@@ -170,7 +155,7 @@ fun FolderScreen(
                 folderName = newName
                 showFolderBottomSheet = false
             },
-            onStudy = { navController?.navigate("study/$folderId") }
+            onStudy = { navController.navigate("study/$folderId") }
         )
     }
 }

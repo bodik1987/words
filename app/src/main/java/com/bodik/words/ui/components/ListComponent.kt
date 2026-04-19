@@ -244,6 +244,8 @@ fun ReorderableIslandColumn(
                             item.label,
                             fontWeight = FontWeight.Medium,
                             fontFamily = MyFontFamily,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     },
                     supportingContent = {
@@ -253,6 +255,8 @@ fun ReorderableIslandColumn(
                                     text = item.supportingText,
                                     fontFamily = MyFontFamily,
                                     fontSize = 16.sp,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
                                 )
                             }
                             // Отображаем пример, если он есть
@@ -261,6 +265,8 @@ fun ReorderableIslandColumn(
                                     text = item.example,
                                     fontFamily = MyFontFamily,
                                     fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                                 )
                             }

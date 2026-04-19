@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.bodik.words.components.BottomSheets.AddFolderBottomSheet
-import com.bodik.words.components.BottomSheets.ItemBottomSheet
 import com.bodik.words.components.BottomSheets.SettingsBottomSheet
 import com.bodik.words.components.MainScreenFloatingButtons
 import com.bodik.words.components.MainScreenList
@@ -23,7 +22,6 @@ import com.bodik.words.utils.ItemManager
 fun MainScreen(navController: NavHostController) {
     var showSettingsBottomSheet by remember { mutableStateOf(false) }
     var showAddFolderBottomSheet by remember { mutableStateOf(false) }
-    var showAddItemBottomSheet by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
@@ -62,7 +60,7 @@ fun MainScreen(navController: NavHostController) {
         floatingActionButton = {
             MainScreenFloatingButtons(
                 onAddFolderClick = { showAddFolderBottomSheet = true },
-                onAddItemClick = { showAddItemBottomSheet = true }
+                onAddItemClick = { navController.navigate("item/add") }
             )
         }
     ) { paddingValues ->
@@ -76,7 +74,7 @@ fun MainScreen(navController: NavHostController) {
                 refreshFolders()
             },
             onReorderItems = { reorderedItems ->
-                itemManager.saveUnassignedItems(reorderedItems) // ← было saveItems
+                itemManager.saveUnassignedItems(reorderedItems)
                 refreshUnassignedItems()
             },
             onDeleteItem = { itemId ->
@@ -109,21 +107,6 @@ fun MainScreen(navController: NavHostController) {
                 folderManager.addFolder(folderName)
                 refreshFolders()
             }
-        )
-    }
-
-    if (showAddItemBottomSheet) {
-        ItemBottomSheet(
-            onDismiss = {
-                showAddItemBottomSheet = false
-            },
-            folderId = null,
-            editingItem = null, // Явно передаем null для режима создания
-            onItemSaved = {
-                refreshUnassignedItems()
-                showAddItemBottomSheet = false // Закрываем после сохранения
-            },
-            onMoveItem = moveItemToFolder
         )
     }
 }

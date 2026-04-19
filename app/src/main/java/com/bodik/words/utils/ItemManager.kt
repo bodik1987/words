@@ -82,4 +82,8 @@ class ItemManager(context: Context) {
                     item.description.contains(query, ignoreCase = true)
         }
     }
+
+    fun getItemById(itemId: String): Item? {
+        return getAllItems().find { it.id == itemId }
+    }
 }
