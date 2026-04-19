@@ -289,7 +289,6 @@ fun ItemScreen(
                         }
                     }
                     Spacer(Modifier.width(12.dp))
-                    // Твоя новая кнопка сохранения в TopBar
                     Button(
                         onClick = { saveItem() },
                         modifier = Modifier.size(44.dp),
