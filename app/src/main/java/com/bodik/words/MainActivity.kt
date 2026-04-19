@@ -1,12 +1,17 @@
 package com.bodik.words
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,8 +25,22 @@ import com.bodik.words.ui.theme.WordsTheme
 import com.bodik.words.utils.ItemManager
 
 class MainActivity : ComponentActivity() {
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Запрос POST_NOTIFICATIONS на Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
         enableEdgeToEdge()
         setContent {
             WordsTheme {
@@ -82,7 +101,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // Добавление новой карточки (без папки)
                     composable(route = "item/add") {
                         ItemScreen(
                             editingItem = null,
@@ -92,7 +110,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // Добавление карточки в папку
                     composable(
                         route = "item/add/{folderId}",
                         arguments = listOf(navArgument("folderId") { type = NavType.StringType })
@@ -106,7 +123,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // Редактирование карточки
                     composable(
                         route = "item/edit/{itemId}",
                         arguments = listOf(navArgument("itemId") { type = NavType.StringType })
@@ -125,7 +141,6 @@ class MainActivity : ComponentActivity() {
                                 onItemDeleted = { navController.popBackStack() },
                             )
                         } else {
-                            // Элемент не найден — просто возвращаемся
                             navController.popBackStack()
                         }
                     }

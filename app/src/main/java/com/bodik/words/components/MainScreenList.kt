@@ -157,6 +157,18 @@ fun MainScreenList(
                     }
 
                     val itemMenuItems = filteredItems.map { item ->
+                        val reminderLabel = item.reminderTime?.let { time ->
+                            val sdf = java.text.SimpleDateFormat(
+                                "dd MMM, HH:mm",
+                                java.util.Locale.getDefault()
+                            )
+                            val prefix = if (time < System.currentTimeMillis()) "⚠ " else "🔔 "
+                            prefix + sdf.format(java.util.Date(time))
+                        }
+                        val exampleText =
+                            listOfNotNull(item.example, reminderLabel).joinToString("\n")
+                                .ifBlank { null }
+
                         IslandListItem(
                             id = item.id,
                             label = item.name,
@@ -186,9 +198,8 @@ fun MainScreenList(
                                     )
                                 }
                             } else null,
-                            example = item.example,
+                            example = exampleText,
                             onClick = { id ->
-                                // Переход на экран редактирования через navController
                                 navController.navigate("item/edit/$id")
                             },
                         )

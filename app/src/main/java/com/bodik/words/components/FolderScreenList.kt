@@ -89,6 +89,18 @@ fun FolderScreenList(
                 }
 
                 val menuItems = items.map { wordItem ->
+                    val reminderLabel = wordItem.reminderTime?.let { time ->
+                        val sdf = java.text.SimpleDateFormat(
+                            "dd MMM, HH:mm",
+                            java.util.Locale.getDefault()
+                        )
+                        val prefix = if (time < System.currentTimeMillis()) "⚠ " else "🔔 "
+                        prefix + sdf.format(java.util.Date(time))
+                    }
+                    val exampleText =
+                        listOfNotNull(wordItem.example, reminderLabel).joinToString("\n")
+                            .ifBlank { null }
+
                     IslandListItem(
                         id = wordItem.id,
                         label = wordItem.name,
@@ -118,9 +130,8 @@ fun FolderScreenList(
                                 )
                             }
                         } else null,
-                        example = wordItem.example,
+                        example = exampleText,
                         onClick = { id ->
-                            // Навигация на экран редактирования через navController
                             navController.navigate("item/edit/$id")
                         }
                     )

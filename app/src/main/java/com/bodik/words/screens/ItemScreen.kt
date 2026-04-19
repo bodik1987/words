@@ -1,8 +1,17 @@
 package com.bodik.words.screens
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,16 +34,25 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +76,14 @@ import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.ItemManager
+import com.bodik.words.utils.NotificationReceiver
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
+
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemScreen(
@@ -88,6 +113,18 @@ fun ItemScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
 
+    var reminderTime by remember { mutableStateOf(editingItem?.reminderTime) }
+    var showTimeDialog by remember { mutableStateOf(false) }
+
+    val calendar = remember { Calendar.getInstance() }
+    val datePickerState =
+        rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
+    val timePickerState = rememberTimePickerState(
+        initialHour = calendar.get(Calendar.HOUR_OF_DAY),
+        initialMinute = calendar.get(Calendar.MINUTE),
+        is24Hour = true
+    )
+
     // Если в режиме редактирования, можно оставить заголовок пустым или написать "Правка"
     val titleText = if (isEditMode) "" else "Добавить"
 
@@ -106,28 +143,36 @@ fun ItemScreen(
 
     val saveItem = {
         if (name.isNotBlank() && description.isNotBlank()) {
+            val finalReminderTime = reminderTime // берем из нашего нового состояния
+
             if (isEditMode) {
-                itemManager.updateItem(
-                    editingItem.copy(
-                        name = name,
-                        description = description,
-                        example = example.takeIf { it.isNotBlank() },
-                        isAudioCard = isAudioCard,
-                        targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
-                    )
+                val updatedItem = editingItem.copy(
+                    name = name,
+                    description = description,
+                    example = example.takeIf { it.isNotBlank() },
+                    isAudioCard = isAudioCard,
+                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
+                    reminderTime = finalReminderTime // Сохраняем время
                 )
+                itemManager.updateItem(updatedItem)
+
+                // Планируем или отменяем уведомление
+                handleNotificationScheduling(context, updatedItem)
             } else {
-                itemManager.addItem(
-                    Item(
-                        id = System.currentTimeMillis().toString(),
-                        name = name,
-                        description = description,
-                        example = example.takeIf { it.isNotBlank() },
-                        isAudioCard = isAudioCard,
-                        targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
-                        folderId = folderId
-                    )
+                val newItem = Item(
+                    id = System.currentTimeMillis().toString(),
+                    name = name,
+                    description = description,
+                    example = example.takeIf { it.isNotBlank() },
+                    isAudioCard = isAudioCard,
+                    targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
+                    folderId = folderId,
+                    reminderTime = finalReminderTime // Сохраняем время
                 )
+                itemManager.addItem(newItem)
+
+                // Планируем уведомление
+                handleNotificationScheduling(context, newItem)
             }
             onBack()
         }
@@ -179,6 +224,102 @@ fun ItemScreen(
             },
             shape = RoundedCornerShape(28.dp)
         )
+    }
+
+    if (showTimeDialog) {
+        var showTimePicker by remember { mutableStateOf(false) }
+        var isTimeSelected by remember { mutableStateOf(false) }
+        var selectedTimeDialogText by remember { mutableStateOf("Укажите время") }
+
+        DatePickerDialog(
+            onDismissRequest = { showTimeDialog = false },
+            confirmButton = {},
+            dismissButton = {}
+        ) {
+            Column {
+                DatePicker(
+                    state = datePickerState,
+                    title = null,
+                    headline = null,
+                    showModeToggle = false
+                )
+                HorizontalDivider()
+                ListItem(
+                    modifier = Modifier.clickable { showTimePicker = true },
+                    leadingContent = {
+                        Icon(
+                            painterResource(R.drawable.clock),
+                            null,
+                            Modifier.size(24.dp)
+                        )
+                    },
+                    headlineContent = { Text(selectedTimeDialogText) },
+                    trailingContent = {
+                        if (isTimeSelected) {
+                            IconButton(onClick = {
+                                selectedTimeDialogText = "Укажите время"
+                                isTimeSelected = false
+                            }) { Icon(painterResource(R.drawable.x), null, Modifier.size(20.dp)) }
+                        }
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = { showTimeDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = {
+                        // 1. Берем дату из календаря
+                        datePickerState.selectedDateMillis?.let { calendar.timeInMillis = it }
+
+                        if (isTimeSelected) {
+                            // 2. Берем время из таймпикера
+                            calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                            calendar.set(Calendar.MINUTE, timePickerState.minute)
+                            calendar.set(Calendar.SECOND, 0)
+
+                            // --- ПРОВЕРКА НА ПРОШЛОЕ ВРЕМЯ ---
+                            if (calendar.timeInMillis <= System.currentTimeMillis()) {
+                                Toast.makeText(
+                                    context,
+                                    "Нельзя выбрать время в прошлом!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                reminderTime = calendar.timeInMillis
+                                showTimeDialog = false
+                            }
+                        } else {
+                            showTimeDialog = false
+                        }
+                    }) { Text("Готово") }
+                }
+            }
+        }
+
+        if (showTimePicker) {
+            AlertDialog(
+                onDismissRequest = { showTimePicker = false },
+                confirmButton = {
+                    TextButton(onClick = {
+                        selectedTimeDialogText =
+                            String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)
+                        isTimeSelected = true
+                        showTimePicker = false
+                    }) { Text("OK") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showTimePicker = false
+                    }) { Text("Отмена") }
+                },
+                text = { TimePicker(state = timePickerState) }
+            )
+        }
     }
 
     if (showDiscardDialog) {
@@ -324,7 +465,6 @@ fun ItemScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -334,8 +474,8 @@ fun ItemScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                            .padding(vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         WordTextField(
                             value = name,
@@ -383,6 +523,50 @@ fun ItemScreen(
                             fontFamily = MyFontFamily,
                         )
 
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background)
+                        )
+
+                        val formattedDate = reminderTime?.let {
+                            SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(Date(it))
+                        } ?: "Добавить дату и время"
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) { showTimeDialog = true },
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painterResource(id = R.drawable.clock),
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Text(
+                                text = formattedDate,
+                                fontFamily = MyFontFamily
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            if (reminderTime != null) {
+                                IconButton(
+                                    modifier = Modifier.size(24.dp),
+                                    onClick = { reminderTime = null }) {
+                                    Icon(
+                                        painterResource(id = R.drawable.x),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+                        }
                         Spacer(
                             Modifier
                                 .height(1.dp)
@@ -456,5 +640,54 @@ fun ItemScreen(
                 onItemSaved()
             }
         )
+    }
+}
+
+private fun handleNotificationScheduling(context: Context, item: Item) {
+    val id = item.id.hashCode()
+
+    // Сначала отменяем старое уведомление (если было)
+    cancelNotification(context, id)
+
+    if (item.reminderTime != null && item.reminderTime > System.currentTimeMillis()) {
+        scheduleNotification(
+            context = context,
+            timeInMillis = item.reminderTime,
+            message = item.name,
+            id = id
+        )
+    }
+}
+
+fun scheduleNotification(context: Context, timeInMillis: Long, message: String, id: Int) {
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, NotificationReceiver::class.java).apply {
+        putExtra("EXTRA_MESSAGE", message)
+        putExtra("EXTRA_ID", id)
+    }
+    val pendingIntent = PendingIntent.getBroadcast(
+        context, id, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
+        context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+        return
+    }
+
+    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
+}
+
+fun cancelNotification(context: Context, id: Int) {
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val intent = Intent(context, NotificationReceiver::class.java).apply {
+        putExtra("EXTRA_ID", id) // Важно: добавляем тот же ключ
+    }
+    val pendingIntent = PendingIntent.getBroadcast(
+        context, id, intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+    )
+    pendingIntent?.let {
+        alarmManager.cancel(it)
+        it.cancel()
     }
 }

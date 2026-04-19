@@ -11,6 +11,7 @@ data class Item(
     val isAudioCard: Boolean = false,    // Тип карточки
     val targetLanguage: String = "pl",   // Язык озвучивания
     val folderId: String? = null,        // ID папки (null = без папки)
+    val reminderTime: Long? = null
 )
 
 // Языки для выбора

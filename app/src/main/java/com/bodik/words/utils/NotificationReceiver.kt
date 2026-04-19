@@ -15,31 +15,39 @@ class NotificationReceiver : BroadcastReceiver() {
         val message = intent.getStringExtra("EXTRA_MESSAGE") ?: "Напоминание!"
         val id = intent.getIntExtra("EXTRA_ID", 0)
 
-        val channelId = "scheduled_notif_channel"
+        val channelId = "word_reminder_channel" // Можно сменить ID канала
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Intent для возврата в приложение
         val mainIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+
         val contentIntent = PendingIntent.getActivity(
-            context, id, mainIntent, PendingIntent.FLAG_IMMUTABLE
+            context,
+            id,
+            mainIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel =
-                NotificationChannel(channelId, "Задачи", NotificationManager.IMPORTANCE_HIGH)
+            val channel = NotificationChannel(
+                channelId,
+                "Слова", // Имя канала, которое видит юзер в настройках
+                NotificationManager.IMPORTANCE_HIGH
+            )
             notificationManager.createNotificationChannel(channel)
         }
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Задача №$id")
+            .setSmallIcon(android.R.drawable.ic_dialog_info) // Тут потом поставишь свою иконку
+            .setContentTitle("")
+            .setContentTitle("")
             .setContentText(message)
             .setContentIntent(contentIntent)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL) // Добавит звук и вибрацию
             .build()
 
         notificationManager.notify(id, notification)
