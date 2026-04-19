@@ -28,7 +28,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.ItemBottomSheet
-import com.bodik.words.components.BottomSheets.MoveItemBottomSheet
 import com.bodik.words.data.Folder
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.ClickableIslandColumn
@@ -240,22 +239,6 @@ fun MainScreenList(
                     navController.navigate("item/edit/$itemId")
                 }
                 editingItem = null
-            }
-        )
-    }
-
-    // BottomSheet для перемещения
-    if (showMoveBottomSheet && movingItemId != null) {
-        MoveItemBottomSheet(
-            onDismiss = {
-                showMoveBottomSheet = false
-                movingItemId = null
-                movingItemCurrentFolder = null
-            },
-            itemId = movingItemId!!,
-            currentFolderId = movingItemCurrentFolder,
-            onMove = { itemId, newFolderId ->
-                onMoveItem(itemId, newFolderId)
             }
         )
     }

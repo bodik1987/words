@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.bodik.words.ui.theme.Blue80
@@ -127,6 +128,7 @@ fun WordTextField(
                     fontSize = fontSize,
                     fontFamily = fontFamily ?: FontFamily.Default,
                     fontWeight = fontWeight ?: FontWeight.Normal,
+                    overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                 )
             } else {
@@ -140,6 +142,7 @@ fun WordTextField(
                             color = MaterialTheme.colorScheme.onBackground
                         ),
                         maxLines = maxLines,
+                        overflow = TextOverflow.Ellipsis,
                         onTextLayout = { layoutResult.value = it }
                     )
                 }
@@ -200,6 +203,7 @@ fun WordTextField(
                             fontSize = fontSize,
                             fontFamily = fontFamily ?: FontFamily.Default,
                             fontWeight = fontWeight ?: FontWeight.Normal,
+                            overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                         )
                     }
