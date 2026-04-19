@@ -15,10 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,7 +24,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavHostController
 import com.bodik.words.R
-import com.bodik.words.components.BottomSheets.ItemBottomSheet
 import com.bodik.words.data.Folder
 import com.bodik.words.data.Item
 import com.bodik.words.ui.components.ClickableIslandColumn
@@ -53,15 +49,6 @@ fun MainScreenList(
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
-
-    // Состояния для редактирования
-    var showEditBottomSheet by remember { mutableStateOf(false) }
-    var editingItem by remember { mutableStateOf<Item?>(null) }
-
-    // Состояния для перемещения
-    var showMoveBottomSheet by remember { mutableStateOf(false) }
-    var movingItemId by remember { mutableStateOf<String?>(null) }
-    var movingItemCurrentFolder by remember { mutableStateOf<String?>(null) }
 
     val filteredItems = remember(unassignedItems, searchQuery) {
         if (searchQuery.isBlank()) unassignedItems
@@ -100,8 +87,8 @@ fun MainScreenList(
                             supportingText = item.description,
                             example = if (folderName != null) "📁 $folderName" else item.example,
                             onClick = { id ->
-                                editingItem = searchResults.find { it.id == id }
-                                showEditBottomSheet = true
+                                // Переход на экран редактирования через navController
+                                navController.navigate("item/edit/$id")
                             }
                         )
                     }
@@ -186,7 +173,9 @@ fun MainScreenList(
                                                 indication = null
                                             ) {
                                                 tts.language =
-                                                    Locale.forLanguageTag(item.targetLanguage)
+                                                    Locale.forLanguageTag(
+                                                        item.targetLanguage ?: "pl"
+                                                    )
                                                 tts.speak(
                                                     item.name,
                                                     TextToSpeech.QUEUE_FLUSH,
@@ -199,8 +188,8 @@ fun MainScreenList(
                             } else null,
                             example = item.example,
                             onClick = { id ->
-                                editingItem = filteredItems.find { it.id == id }
-                                showEditBottomSheet = true
+                                // Переход на экран редактирования через navController
+                                navController.navigate("item/edit/$id")
                             },
                         )
                     }
@@ -222,24 +211,5 @@ fun MainScreenList(
                 Spacer(modifier = Modifier.height(80.dp))
             }
         }
-    }
-
-    if (showEditBottomSheet && editingItem != null) {
-        ItemBottomSheet(
-            item = editingItem!!, // Передаем объект Item
-            onDismiss = {
-                showEditBottomSheet = false
-                editingItem = null
-            },
-            onEditClick = {
-                // Закрываем шторку и переходим на экран редактирования
-                showEditBottomSheet = false
-                val itemId = editingItem?.id
-                if (itemId != null) {
-                    navController.navigate("item/edit/$itemId")
-                }
-                editingItem = null
-            }
-        )
     }
 }

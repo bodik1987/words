@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.FolderBottomSheet
-import com.bodik.words.components.BottomSheets.ItemBottomSheet
 import com.bodik.words.components.FolderScreenFloatingButton
 import com.bodik.words.components.FolderScreenList
 import com.bodik.words.ui.theme.MyFontFamily
@@ -43,9 +42,7 @@ fun FolderScreen(
     folderId: String,
     onBack: () -> Unit,
 ) {
-    var showViewBottomSheet by remember { mutableStateOf(false) }
     var showFolderBottomSheet by remember { mutableStateOf(false) }
-    var viewingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
     var refreshTrigger by remember { mutableIntStateOf(0) }
 
     val context = LocalContext.current
@@ -57,11 +54,6 @@ fun FolderScreen(
     }
 
     val refreshWords = { refreshTrigger++ }
-
-    val moveItemToFolder: (String, String?) -> Unit = { itemId, newFolderId ->
-        itemManager.moveItemToFolder(itemId, newFolderId)
-        refreshWords()
-    }
 
     Scaffold(
         topBar = {
@@ -105,7 +97,6 @@ fun FolderScreen(
             )
         },
         floatingActionButton = {
-            // Добавление — сразу на экран
             FolderScreenFloatingButton(
                 onAddItemClick = { navController.navigate("item/add/$folderId") }
             )
@@ -115,30 +106,7 @@ fun FolderScreen(
             paddingValues = paddingValues,
             folderId = folderId,
             refreshTrigger = refreshTrigger,
-            onEditItem = { item ->
-                // Открываем просмотр в BottomSheet
-                viewingItem = item
-                showViewBottomSheet = true
-            }
-        )
-    }
-
-    // Просмотр карточки — только BottomSheet
-    if (showViewBottomSheet && viewingItem != null) {
-        ItemBottomSheet(
-            item = viewingItem!!,
-            onDismiss = {
-                showViewBottomSheet = false
-                viewingItem = null
-                // Обновляем список после возможного редактирования
-                refreshWords()
-            },
-            onEditClick = {
-                // Переходим на экран редактирования
-                showViewBottomSheet = false
-                navController.navigate("item/edit/${viewingItem!!.id}")
-                viewingItem = null
-            }
+            navController = navController  // Убрали параметр onEditItem
         )
     }
 

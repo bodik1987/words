@@ -24,8 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.navigation.NavHostController
 import com.bodik.words.R
-import com.bodik.words.data.Item
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.ReorderableIslandColumn
 import com.bodik.words.utils.ItemManager
@@ -36,7 +36,7 @@ fun FolderScreenList(
     paddingValues: PaddingValues,
     folderId: String,
     refreshTrigger: Int = 0,
-    onEditItem: (Item) -> Unit,
+    navController: NavHostController
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
@@ -105,7 +105,9 @@ fun FolderScreenList(
                                             indication = null
                                         ) {
                                             tts.language =
-                                                Locale.forLanguageTag(wordItem.targetLanguage)
+                                                Locale.forLanguageTag(
+                                                    wordItem.targetLanguage ?: "pl"
+                                                )
                                             tts.speak(
                                                 wordItem.name,
                                                 TextToSpeech.QUEUE_FLUSH,
@@ -118,8 +120,8 @@ fun FolderScreenList(
                         } else null,
                         example = wordItem.example,
                         onClick = { id ->
-                            val found = items.find { it.id == id }
-                            if (found != null) onEditItem(found)
+                            // Навигация на экран редактирования через navController
+                            navController.navigate("item/edit/$id")
                         }
                     )
                 }
