@@ -94,7 +94,7 @@ fun FolderScreenList(
                             "dd MMM, HH:mm",
                             java.util.Locale.getDefault()
                         )
-                        val prefix = if (time < System.currentTimeMillis()) "⚠ " else "🔔 "
+                        val prefix = if (time < System.currentTimeMillis()) "Истекло: " else ""
                         prefix + sdf.format(java.util.Date(time))
                     }
                     val exampleText =

@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.MoveItemBottomSheet
+import com.bodik.words.components.BottomSheets.ReadingDialog
 import com.bodik.words.data.Item
 import com.bodik.words.data.Language
 import com.bodik.words.ui.components.CustomSwitch
@@ -112,6 +113,7 @@ fun ItemScreen(
     var showLanguageMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
+    var showReadingDialog by remember { mutableStateOf(false) }
 
     var reminderTime by remember { mutableStateOf(editingItem?.reminderTime) }
     var showTimeDialog by remember { mutableStateOf(false) }
@@ -434,6 +436,25 @@ fun ItemScreen(
                             )
                         }
                     }
+                    if (editingItem != null) {
+                        Spacer(Modifier.width(12.dp))
+                        Button(
+                            onClick = { showReadingDialog = true },
+                            modifier = Modifier.size(44.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.reading),
+                                contentDescription = "ViewMode",
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
                     Spacer(Modifier.width(12.dp))
                     Button(
                         onClick = { saveItem() },
@@ -644,6 +665,15 @@ fun ItemScreen(
                 showMoveBottomSheet = false
                 onItemSaved()
             }
+        )
+    }
+
+    if (showReadingDialog && editingItem != null) {
+        ReadingDialog(
+            name = name,
+            description = description,
+            example = example.takeIf { it.isNotBlank() },
+            onDismiss = { showReadingDialog = false }
         )
     }
 }

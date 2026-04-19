@@ -162,7 +162,7 @@ fun MainScreenList(
                         val reminderLabel = item.reminderTime?.let { time ->
                             val sdf = java.text.SimpleDateFormat(
                                 "dd MMM, HH:mm",
-                                java.util.Locale.getDefault()
+                                Locale.getDefault()
                             )
                             val prefix =
                                 if (time < System.currentTimeMillis()) "Истекло: " else ""
