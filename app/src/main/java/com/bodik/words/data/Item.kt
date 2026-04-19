@@ -19,5 +19,6 @@ enum class Language(val code: String, val displayName: String) {
     EN("en", "Английский"),
     DE("de", "Немецкий"),
     FR("fr", "Французский"),
-    ES("es", "Испанский")
+    ES("es", "Испанский"),
+    RU("ru", "Русский")
 }

@@ -16,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,12 @@ fun CustomSwitch(
         modifier = modifier
             .width(width)
             .height(height)
+            .shadow(
+                elevation = 6.dp,
+                shape = (RoundedCornerShape(height)),
+                ambientColor = Color.Black.copy(alpha = 0.2f),
+                spotColor = Color.Black.copy(alpha = 0.2f)
+            )
             .clip(RoundedCornerShape(height))
             .background(if (checked) Color(0xFF62BE63) else Color(0xFFE2E2E4))
             .clickable(
@@ -54,6 +61,12 @@ fun CustomSwitch(
                 .offset(x = animOffset)
                 .width(thumbWidth)
                 .height(thumbHeight)
+                .shadow(
+                    elevation = 6.dp,
+                    shape = (RoundedCornerShape(50)),
+                    ambientColor = Color.Black.copy(alpha = 0.5f),
+                    spotColor = Color.Black.copy(alpha = 0.5f)
+                )
                 .clip(RoundedCornerShape(50))
                 .background(Color.White)
         )

@@ -42,7 +42,7 @@ fun RenameFolderBottomSheet(
     onDismiss: () -> Unit,
     onRenameFolder: (String) -> Unit
 ) {
-    var title by remember { mutableStateOf(folderName) }  // 👈 предзаполнено
+    var title by remember { mutableStateOf(folderName) }
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -80,7 +80,7 @@ fun RenameFolderBottomSheet(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Переименовать папку",  // 👈
+                        text = "Переименовать папку",
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp,
@@ -115,7 +115,7 @@ fun RenameFolderBottomSheet(
 
                 Spacer(Modifier.height(24.dp))
 
-                val isChanged = title.isNotBlank() && title.trim() != folderName  // 👈
+                val isChanged = title.isNotBlank() && title.trim() != folderName
 
                 Button(
                     onClick = {

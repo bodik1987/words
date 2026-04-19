@@ -181,7 +181,7 @@ private fun FolderIslandItem(
         },
         leadingContent = {
             Icon(
-                painter = painterResource(id = R.drawable.folder), // Используйте вашу иконку папки
+                painter = painterResource(id = R.drawable.folder),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = if (isSelected) Orange80 else MaterialTheme.colorScheme.onSurfaceVariant

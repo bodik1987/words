@@ -42,7 +42,6 @@ fun FolderBottomSheet(
 
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showRenameSheet by remember { mutableStateOf(false) }
-    var newName by remember { mutableStateOf(folderName) }
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
@@ -62,6 +61,27 @@ fun FolderBottomSheet(
                 .padding(bottom = 24.dp),
         ) {
             Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(34.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                ),
+            ) {
+                Text(
+                    "Учить слова",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
 
             Button(
                 onClick = { showRenameSheet = true },

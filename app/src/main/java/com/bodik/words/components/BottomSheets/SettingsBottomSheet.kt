@@ -36,7 +36,7 @@ import com.bodik.words.utils.ItemManager
 @Composable
 fun SettingsBottomSheet(
     onDismiss: () -> Unit,
-    onImportDone: () -> Unit = {}   // 👈 чтобы MainScreen обновил состояние
+    onImportDone: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -56,7 +56,6 @@ fun SettingsBottomSheet(
         }
     }
 
-    // Лаунчер для выбора файла импорта
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->

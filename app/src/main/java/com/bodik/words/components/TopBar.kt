@@ -72,6 +72,7 @@ fun TopBar(
                         Box(
                             modifier = Modifier
                                 .height(44.dp)
+
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                                 .padding(start = 16.dp, end = 4.dp),

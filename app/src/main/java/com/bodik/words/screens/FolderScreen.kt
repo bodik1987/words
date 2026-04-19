@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -25,7 +26,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.FolderBottomSheet
 import com.bodik.words.components.BottomSheets.ItemBottomSheet
@@ -40,21 +40,17 @@ import com.bodik.words.utils.ItemManager
 fun FolderScreen(
     folderId: String,
     onBack: () -> Unit,
-    navController: NavHostController? = null
 ) {
     var showAddItemBottomSheet by remember { mutableStateOf(false) }
     var showFolderBottomSheet by remember { mutableStateOf(false) }
     var showEditBottomSheet by remember { mutableStateOf(false) }
     var editingItem by remember { mutableStateOf<com.bodik.words.data.Item?>(null) }
-    var refreshTrigger by remember { mutableStateOf(0) }
+    var refreshTrigger by remember { mutableIntStateOf(0) }
 
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
     val itemManager = remember { ItemManager(context) }
 
-    val folder = remember(folderId) {
-        folderManager.getFolders().find { it.id == folderId }
-    }
     var folderName by remember(folderId) {
         mutableStateOf(folderManager.getFolders().find { it.id == folderId }?.name ?: "Папка")
     }
@@ -89,7 +85,7 @@ fun FolderScreen(
                 actions = {
                     Button(
                         onClick = { showFolderBottomSheet = true },
-                        modifier = Modifier.size(40.dp),
+                        modifier = Modifier.size(44.dp),
                         shape = CircleShape,
                         contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -100,10 +96,10 @@ fun FolderScreen(
                         Icon(
                             painter = painterResource(id = R.drawable.ellipsis_vertical),
                             contentDescription = "Menu",
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(24.dp),
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
             )
         },
@@ -122,7 +118,6 @@ fun FolderScreen(
         )
     }
 
-    // Bottom sheet для создания нового элемента
     if (showAddItemBottomSheet) {
         ItemBottomSheet(
             onDismiss = { showAddItemBottomSheet = false },
@@ -134,7 +129,6 @@ fun FolderScreen(
         )
     }
 
-    // Bottom sheet для редактирования существующего элемента
     if (showEditBottomSheet && editingItem != null) {
         ItemBottomSheet(
             onDismiss = {
@@ -169,9 +163,9 @@ fun FolderScreen(
                 folderManager.deleteFolder(folderId)
                 onBack()
             },
-            onRenameFolder = { newName ->       // 👈
+            onRenameFolder = { newName ->
                 folderManager.renameFolder(folderId, newName)
-                folderName = newName            // 👈 обновляем TopAppBar сразу
+                folderName = newName
                 showFolderBottomSheet = false
             }
         )
