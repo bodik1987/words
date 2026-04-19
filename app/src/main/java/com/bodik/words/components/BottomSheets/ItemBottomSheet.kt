@@ -1,6 +1,7 @@
 package com.bodik.words.components.BottomSheets
 
 import android.speech.tts.TextToSpeech
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,11 +12,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,13 +88,13 @@ fun ItemBottomSheet(
     DisposableEffect(lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             if (event == androidx.lifecycle.Lifecycle.Event.ON_PAUSE) {
-                tts.stop()  // останавливает при сворачивании
+                tts.stop()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
-            tts.stop()      // останавливает при закрытии bottom sheet
+            tts.stop()
             tts.shutdown()
         }
     }
@@ -109,17 +115,38 @@ fun ItemBottomSheet(
     var showMoveBottomSheet by remember { mutableStateOf(false) }
     var showLanguageMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
 
     val isEditMode = editingItem != null
     var isReadOnly by remember { mutableStateOf(isEditMode) }
 
+    // rememberUpdatedState гарантирует что confirmValueChange всегда видит
+    // актуальное значение isReadOnly, а не захваченное при первой композиции
+    val currentIsReadOnly by rememberUpdatedState(isReadOnly)
+
     val titleText = if (isEditMode) "Редактировать" else "Добавить"
 
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { newValue ->
+            if (!currentIsReadOnly && newValue == SheetValue.Hidden) {
+                showDiscardDialog = true
+                false
+            } else {
+                true
+            }
+        }
+    )
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
+    }
+
+    // Перехватываем системный жест/кнопку назад в режиме редактирования
+    BackHandler(enabled = !isReadOnly) {
+        showDiscardDialog = true
+        scope.launch { sheetState.expand() }
     }
 
     val saveItem = {
@@ -160,6 +187,7 @@ fun ItemBottomSheet(
         }
     }
 
+    // Диалог удаления
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -181,7 +209,7 @@ fun ItemBottomSheet(
                 TextButton(
                     onClick = {
                         showDeleteDialog = false
-                        deleteItem() // Вызываем вашу существующую функцию удаления
+                        deleteItem()
                     }
                 ) {
                     Text(
@@ -193,9 +221,7 @@ fun ItemBottomSheet(
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showDeleteDialog = false }
-                ) {
+                TextButton(onClick = { showDeleteDialog = false }) {
                     Text(
                         "Отмена",
                         fontFamily = MyFontFamily,
@@ -207,8 +233,65 @@ fun ItemBottomSheet(
         )
     }
 
+    // Диалог подтверждения отмены редактирования
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                // Закрытие диалога тапом вне него = "Продолжить"
+                showDiscardDialog = false
+                scope.launch { sheetState.expand() }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            title = {
+                Text(
+                    text = "Отменить изменения?",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    text = "Несохранённые изменения будут потеряны.",
+                    fontFamily = MyFontFamily
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDiscardDialog = false
+                    scope.launch { sheetState.expand() }
+                }) {
+                    Text(
+                        "Продолжить",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showDiscardDialog = false
+                    onDismiss()
+                }) {
+                    Text(
+                        "Закрыть",
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
+    }
+
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            if (!isReadOnly) {
+                showDiscardDialog = true
+            } else {
+                onDismiss()
+            }
+        },
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.background,
         dragHandle = null,
@@ -216,7 +299,9 @@ fun ItemBottomSheet(
         Column(
             Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
+                .imePadding()
                 .padding(horizontal = 12.dp)
                 .padding(bottom = 20.dp, top = 12.dp),
         ) {
@@ -267,7 +352,6 @@ fun ItemBottomSheet(
                             )
                         }
                     }
-
                 }
                 if (isEditMode) Spacer(Modifier.height(12.dp))
             }
@@ -292,6 +376,13 @@ fun ItemBottomSheet(
                         readOnly = isReadOnly,
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.Medium
+                    )
+
+                    Spacer(
+                        Modifier
+                            .height(1.dp)
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.background)
                     )
 
                     WordTextField(
@@ -325,7 +416,6 @@ fun ItemBottomSheet(
                             fontFamily = MyFontFamily,
                         )
                     }
-
 
                     if (!isReadOnly) {
                         Spacer(
