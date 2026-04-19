@@ -13,8 +13,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.bodik.words.utils.LinkTransformation
 
 @Composable
 fun WordTextField(
@@ -26,13 +28,21 @@ fun WordTextField(
     fontFamily: FontFamily? = null,
     fontWeight: FontWeight? = null,
     readOnly: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    isLinkHighlightingEnabled: Boolean = false
 ) {
+    val visualTransformation = if (isLinkHighlightingEnabled) {
+        LinkTransformation(linkColor = MaterialTheme.colorScheme.primary)
+    } else {
+        VisualTransformation.None
+    }
+
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
         readOnly = readOnly,
         enabled = enabled,
+        visualTransformation = visualTransformation,
         textStyle = TextStyle(
             fontSize = fontSize,
             fontFamily = fontFamily ?: FontFamily.Default,

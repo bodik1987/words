@@ -302,6 +302,7 @@ fun ItemBottomSheet(
                         maxLines = 15,
                         readOnly = isReadOnly,
                         fontFamily = MyFontFamily,
+                        isLinkHighlightingEnabled = true
                     )
 
                     val shouldShowExample = !isReadOnly || example.isNotBlank()
