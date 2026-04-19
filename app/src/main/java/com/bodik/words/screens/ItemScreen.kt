@@ -324,7 +324,7 @@ fun ItemScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(8.dp),
+                    .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Surface(

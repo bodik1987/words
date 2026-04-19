@@ -92,7 +92,7 @@ fun FolderScreen(
                             modifier = Modifier.size(24.dp),
                         )
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                 }
             )
         },

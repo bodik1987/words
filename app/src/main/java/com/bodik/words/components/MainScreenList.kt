@@ -205,11 +205,7 @@ fun MainScreenList(
                     )
                 }
             }
-
-            item { Spacer(Modifier.height(10.dp)) }
-            item {
-                Spacer(modifier = Modifier.height(80.dp))
-            }
+            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }

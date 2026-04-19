@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -229,7 +231,7 @@ fun ReorderableIslandColumn(
         verticalArrangement = Arrangement.spacedBy(ITEM_SPACING),
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 12.dp)
     ) { index, item, isDragging ->
         key(item.id) {
             ReorderableItem {
@@ -248,6 +250,7 @@ fun ReorderableIslandColumn(
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                         )
+                        Spacer(modifier = Modifier.height(2.dp))
                     },
                     supportingContent = {
                         Column {
@@ -256,17 +259,16 @@ fun ReorderableIslandColumn(
                                     text = item.supportingText,
                                     fontFamily = MyFontFamily,
                                     fontSize = 16.sp,
-                                    maxLines = 2,
+                                    maxLines = 6,
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
-                            // Отображаем пример, если он есть
                             if (!item.example.isNullOrBlank()) {
                                 Text(
                                     text = item.example,
                                     fontFamily = MyFontFamily,
                                     fontSize = 14.sp,
-                                    maxLines = 1,
+                                    maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                                 )
