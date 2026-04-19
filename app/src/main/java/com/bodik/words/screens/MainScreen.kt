@@ -77,11 +77,6 @@ fun MainScreen(navController: NavHostController) {
                 itemManager.saveUnassignedItems(reorderedItems)
                 refreshUnassignedItems()
             },
-            onDeleteItem = { itemId ->
-                itemManager.deleteItem(itemId)
-                refreshUnassignedItems()
-            },
-            onMoveItem = moveItemToFolder,
             searchQuery = searchQuery,
             searchResults = searchResults
         )

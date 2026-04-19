@@ -10,6 +10,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavType
@@ -129,8 +131,8 @@ class MainActivity : ComponentActivity() {
                     ) { backStackEntry ->
                         val itemId = backStackEntry.arguments?.getString("itemId") ?: ""
                         val context = LocalContext.current
-                        val itemManager = ItemManager(context)
-                        val item = itemManager.getItemById(itemId)
+                        val itemManager = remember(itemId) { ItemManager(context) }
+                        val item = remember(itemId) { itemManager.getItemById(itemId) }
 
                         if (item != null) {
                             ItemScreen(
@@ -138,10 +140,16 @@ class MainActivity : ComponentActivity() {
                                 folderId = item.folderId,
                                 onBack = { navController.popBackStack() },
                                 onItemSaved = { navController.popBackStack() },
-                                onItemDeleted = { navController.popBackStack() },
+                                onItemDeleted = {
+                                    // Просто возвращаемся назад, удаление уже выполнено в ItemScreen
+                                    navController.popBackStack()
+                                },
                             )
                         } else {
-                            navController.popBackStack()
+                            // Если элемент не найден (удалён), сразу выходим
+                            LaunchedEffect(Unit) {
+                                navController.popBackStack()
+                            }
                         }
                     }
                 }

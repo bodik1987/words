@@ -31,7 +31,6 @@ import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
 import com.bodik.words.ui.theme.MyFontFamily
-import com.bodik.words.utils.ItemManager
 import java.util.Locale
 
 @Composable
@@ -42,14 +41,9 @@ fun MainScreenList(
     unassignedItems: List<Item>,
     onReorderFolders: (List<Folder>) -> Unit,
     onReorderItems: (List<Item>) -> Unit,
-    onDeleteItem: (String) -> Unit,
-    onMoveItem: (String, String?) -> Unit,
     searchQuery: String = "",
     searchResults: List<Item> = emptyList()
 ) {
-    val context = LocalContext.current
-    val itemManager = remember { ItemManager(context) }
-
     val filteredItems = remember(unassignedItems, searchQuery) {
         if (searchQuery.isBlank()) unassignedItems
         else unassignedItems.filter { item ->

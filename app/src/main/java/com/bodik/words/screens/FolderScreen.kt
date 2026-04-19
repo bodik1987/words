@@ -33,7 +33,6 @@ import com.bodik.words.components.FolderScreenFloatingButton
 import com.bodik.words.components.FolderScreenList
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.utils.FolderManager
-import com.bodik.words.utils.ItemManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,13 +46,10 @@ fun FolderScreen(
 
     val context = LocalContext.current
     val folderManager = remember { FolderManager(context) }
-    val itemManager = remember { ItemManager(context) }
 
     var folderName by remember(folderId) {
         mutableStateOf(folderManager.getFolders().find { it.id == folderId }?.name ?: "Папка")
     }
-
-    val refreshWords = { refreshTrigger++ }
 
     Scaffold(
         topBar = {
@@ -106,7 +102,7 @@ fun FolderScreen(
             paddingValues = paddingValues,
             folderId = folderId,
             refreshTrigger = refreshTrigger,
-            navController = navController  // Убрали параметр onEditItem
+            navController = navController
         )
     }
 

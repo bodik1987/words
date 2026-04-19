@@ -93,7 +93,6 @@ fun ItemScreen(
     onBack: () -> Unit,
     onItemSaved: () -> Unit = {},
     onItemDeleted: (() -> Unit)? = null,
-    onMoveItem: ((String, String?) -> Unit)? = null
 ) {
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
@@ -203,8 +202,7 @@ fun ItemScreen(
                     showDeleteDialog = false
                     if (isEditMode) {
                         itemManager.deleteItem(editingItem.id)
-                        onItemDeleted?.invoke()
-                        onBack()
+                        onItemDeleted?.invoke()  // ← Только один вызов
                     }
                 }) {
                     Text(
