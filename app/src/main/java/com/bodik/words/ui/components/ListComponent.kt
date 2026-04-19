@@ -77,6 +77,7 @@ data class IslandListItem(
     val leadingContent: (@Composable () -> Unit)? = null,
     val trailingContent: (@Composable () -> Unit)? = null,
     val onClick: (String) -> Unit = {},
+    val compact: Boolean = false,
 )
 
 @Composable
@@ -252,7 +253,7 @@ fun ReorderableIslandColumn(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                     },
-                    supportingContent = {
+                    supportingContent = ({
                         Column {
                             if (!item.supportingText.isNullOrBlank()) {
                                 Text(
@@ -274,13 +275,14 @@ fun ReorderableIslandColumn(
                                 )
                             }
                         }
-                    },
+                    }),
                     leadingContent = item.leadingContent,
                     trailingContent = item.trailingContent,
                     colors = ListItemDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     ),
                     modifier = Modifier
+                        .then(if (item.compact) Modifier.heightIn(max = 48.dp) else Modifier)
                         .longPressDraggableHandle(
                             onDragStarted = {
                                 haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)

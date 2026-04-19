@@ -142,7 +142,7 @@ fun ItemScreen(
     }
 
     val saveItem = {
-        if (name.isNotBlank() && description.isNotBlank()) {
+        if (name.isNotBlank() || description.isNotBlank()) {
             val finalReminderTime = reminderTime // берем из нашего нового состояния
 
             if (isEditMode) {
@@ -253,7 +253,7 @@ fun ItemScreen(
                             Modifier.size(24.dp)
                         )
                     },
-                    headlineContent = { Text(selectedTimeDialogText) },
+                    headlineContent = { Text(selectedTimeDialogText, fontFamily = MyFontFamily) },
                     trailingContent = {
                         if (isTimeSelected) {
                             IconButton(onClick = {
@@ -271,7 +271,12 @@ fun ItemScreen(
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = { showTimeDialog = false }) { Text("Отмена") }
+                    TextButton(onClick = { showTimeDialog = false }) {
+                        Text(
+                            "Отмена",
+                            fontFamily = MyFontFamily,
+                        )
+                    }
                     TextButton(onClick = {
                         // 1. Берем дату из календаря
                         datePickerState.selectedDateMillis?.let { calendar.timeInMillis = it }
@@ -296,7 +301,7 @@ fun ItemScreen(
                         } else {
                             showTimeDialog = false
                         }
-                    }) { Text("Готово") }
+                    }) { Text("Готово", fontFamily = MyFontFamily) }
                 }
             }
         }
@@ -310,12 +315,12 @@ fun ItemScreen(
                             String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)
                         isTimeSelected = true
                         showTimePicker = false
-                    }) { Text("OK") }
+                    }) { Text("OK", fontFamily = MyFontFamily) }
                 },
                 dismissButton = {
                     TextButton(onClick = {
                         showTimePicker = false
-                    }) { Text("Отмена") }
+                    }) { Text("Отмена", fontFamily = MyFontFamily) }
                 },
                 text = { TimePicker(state = timePickerState) }
             )
@@ -335,6 +340,15 @@ fun ItemScreen(
             },
             text = { Text("Несохранённые изменения будут потеряны.", fontFamily = MyFontFamily) },
             confirmButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text(
+                        "Продолжить",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            dismissButton = {
                 TextButton(onClick = {
                     showDiscardDialog = false
                     onBack()
@@ -344,15 +358,6 @@ fun ItemScreen(
                         color = MaterialTheme.colorScheme.error,
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDiscardDialog = false }) {
-                    Text(
-                        "Продолжить",
-                        fontFamily = MyFontFamily,
-                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             },

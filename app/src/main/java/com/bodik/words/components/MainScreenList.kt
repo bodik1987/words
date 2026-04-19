@@ -65,6 +65,8 @@ fun MainScreenList(
             .fillMaxSize()
             .padding(paddingValues)
     ) {
+        item { Spacer(Modifier.height(8.dp)) }
+
         if (showSearch) {
             item { LabelText("Результаты поиска") }
 
@@ -96,12 +98,12 @@ fun MainScreenList(
                 }
             }
         } else {
-            item { LabelText("Папки") }
             item {
                 val menuItems = folders.map { folder ->
                     IslandListItem(
                         id = folder.id,
                         label = folder.name,
+                        compact = true,
                         leadingContent = {
                             Icon(
                                 painter = painterResource(id = R.drawable.folder),
@@ -162,7 +164,8 @@ fun MainScreenList(
                                 "dd MMM, HH:mm",
                                 java.util.Locale.getDefault()
                             )
-                            val prefix = if (time < System.currentTimeMillis()) "⚠ " else "🔔 "
+                            val prefix =
+                                if (time < System.currentTimeMillis()) "Истекло: " else ""
                             prefix + sdf.format(java.util.Date(time))
                         }
                         val exampleText =

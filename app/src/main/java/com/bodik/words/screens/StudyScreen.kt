@@ -207,14 +207,16 @@ fun StudyScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Text(
-                                    text = item.description,
-                                    fontFamily = MyFontFamily,
-                                    fontSize = 22.sp,
-                                    lineHeight = 32.sp,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                                )
+                                item.description?.let {
+                                    Text(
+                                        text = it,
+                                        fontFamily = MyFontFamily,
+                                        fontSize = 22.sp,
+                                        lineHeight = 32.sp,
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                    )
+                                }
 
                                 if (showAnswer) {
                                     Spacer(Modifier.height(20.dp))
