@@ -71,7 +71,11 @@ fun StudyScreen(
     val itemManager = remember { ItemManager(context) }
 
     var queue by remember {
-        mutableStateOf(itemManager.getItemsInFolder(folderId).toMutableList())
+        mutableStateOf(
+            itemManager.getItemsInFolder(folderId)
+                .filter { it.isAudioCard }
+                .toMutableList()
+        )
     }
 
     var showAnswer by remember { mutableStateOf(false) }

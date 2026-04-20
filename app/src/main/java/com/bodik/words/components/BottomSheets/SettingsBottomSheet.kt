@@ -138,7 +138,7 @@ fun SettingsBottomSheet(
 
             Button(
                 onClick = {
-                    exportLauncher.launch("words_export.txt")
+                    exportLauncher.launch("notepad_backup.txt")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
