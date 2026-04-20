@@ -38,11 +38,6 @@ fun MainScreen(navController: NavHostController) {
         unassignedItems = itemManager.getUnassignedItems()
     }
 
-    val moveItemToFolder = { itemId: String, folderId: String? ->
-        itemManager.moveItemToFolder(itemId, folderId)
-        refreshUnassignedItems()
-    }
-
     var searchQuery by remember { mutableStateOf("") }
 
     val searchResults = remember(searchQuery, unassignedItems, folders) {

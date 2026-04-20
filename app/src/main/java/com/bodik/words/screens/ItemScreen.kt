@@ -637,7 +637,7 @@ fun ItemScreen(
                                 }
                             } else {
                                 Text(
-                                    text = "Озвучивать",
+                                    text = "Аудио карточка",
                                     fontFamily = MyFontFamily,
                                     fontSize = 18.sp,
                                     color = MaterialTheme.colorScheme.onBackground
