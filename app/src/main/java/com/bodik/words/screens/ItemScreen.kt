@@ -611,7 +611,7 @@ fun ItemScreen(
                                 Text(
                                     text = "Аудио карточка",
                                     fontFamily = MyFontFamily,
-                                    color = MaterialTheme.colorScheme.onBackground
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                 )
                             }
                             CustomSwitch(
@@ -639,7 +639,7 @@ fun ItemScreen(
                                     Text(
                                         text = "Удалить",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                 }
                             }
@@ -657,7 +657,7 @@ fun ItemScreen(
                                     Text(
                                         text = "Читать",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                 }
                             }
@@ -675,7 +675,7 @@ fun ItemScreen(
                                     Text(
                                         text = "Переместить",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                 }
                             }

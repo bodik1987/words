@@ -43,19 +43,18 @@ fun ReadingDialog(
             ) {
                 Text(
                     text = name,
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 if (description.isNotBlank()) {
                     Text(
                         text = description,
-                        fontSize = 20.sp,
+                        fontSize = 18.sp,
                         fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
                     )
                 }
 
@@ -64,8 +63,7 @@ fun ReadingDialog(
                         text = example,
                         fontSize = 18.sp,
                         fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Light,
-                        color = MaterialTheme.colorScheme.outline
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
                 }
             }
