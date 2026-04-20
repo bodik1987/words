@@ -79,7 +79,7 @@ class ItemManager(context: Context) {
         if (query.isBlank()) return emptyList()
         return getAllItems().filter { item ->
             item.name.contains(query, ignoreCase = true) ||
-                    item.description.contains(query, ignoreCase = true)
+                    item.description?.contains(query, ignoreCase = true) == true
         }
     }
 

@@ -143,13 +143,13 @@ fun ItemScreen(
     }
 
     val saveItem = {
-        if (name.isNotBlank() || description.isNotBlank()) {
+        if (name.isNotBlank()) {
             val finalReminderTime = reminderTime // берем из нашего нового состояния
 
             if (isEditMode) {
                 val updatedItem = editingItem.copy(
                     name = name,
-                    description = description,
+                    description = description.takeIf { it.isNotBlank() },
                     example = example.takeIf { it.isNotBlank() },
                     isAudioCard = isAudioCard,
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
@@ -163,7 +163,7 @@ fun ItemScreen(
                 val newItem = Item(
                     id = System.currentTimeMillis().toString(),
                     name = name,
-                    description = description,
+                    description = description.takeIf { it.isNotBlank() },
                     example = example.takeIf { it.isNotBlank() },
                     isAudioCard = isAudioCard,
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
@@ -397,79 +397,21 @@ fun ItemScreen(
                     }
                 },
                 actions = {
-                    if (isEditMode) {
-                        Button(
-                            onClick = { showDeleteDialog = true },
-                            modifier = Modifier.size(44.dp),
-                            shape = CircleShape,
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.errorContainer,
-                                contentColor = MaterialTheme.colorScheme.error
-                            ),
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.delete),
-                                contentDescription = "Удалить",
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
-                    if (editingItem != null) {
-                        Spacer(Modifier.width(12.dp))
-                        Button(
-                            onClick = { showMoveBottomSheet = true },
-                            modifier = Modifier.size(44.dp),
-                            shape = CircleShape,
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                                contentColor = MaterialTheme.colorScheme.onBackground
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.folder),
-                                contentDescription = "Move",
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
-                    if (editingItem != null) {
-                        Spacer(Modifier.width(12.dp))
-                        Button(
-                            onClick = { showReadingDialog = true },
-                            modifier = Modifier.size(44.dp),
-                            shape = CircleShape,
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                                contentColor = MaterialTheme.colorScheme.onBackground
-                            )
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.reading),
-                                contentDescription = "ViewMode",
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                    }
-                    Spacer(Modifier.width(12.dp))
                     Button(
                         onClick = { saveItem() },
-                        modifier = Modifier.size(44.dp),
-                        shape = CircleShape,
-                        enabled = name.isNotBlank() && description.isNotBlank(),
-                        contentPadding = PaddingValues(0.dp),
+                        shape = RoundedCornerShape(50),
+                        enabled = name.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Blue80,
                             contentColor = Color.White,
                             disabledContainerColor = Color.Black.copy(alpha = 0.1f)
                         )
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.check),
-                            contentDescription = "Save",
-                            modifier = Modifier.size(24.dp)
+                        Text(
+                            "Сохранить",
+                            fontFamily = MyFontFamily,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 18.sp
                         )
                     }
                     Spacer(Modifier.width(8.dp))
@@ -512,13 +454,6 @@ fun ItemScreen(
                             fontWeight = FontWeight.Medium
                         )
 
-                        Spacer(
-                            Modifier
-                                .height(1.dp)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                        )
-
                         WordTextField(
                             value = description,
                             onValueChange = { description = it },
@@ -530,23 +465,15 @@ fun ItemScreen(
                             isLinkHighlightingEnabled = true
                         )
 
-                        Spacer(
-                            Modifier
-                                .height(1.dp)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                        )
-
                         WordTextField(
                             value = example,
                             onValueChange = { example = it },
                             placeholder = "Пример (необязательно)",
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             maxLines = 6,
                             readOnly = false,
                             fontFamily = MyFontFamily,
                         )
-
                         Spacer(
                             Modifier
                                 .height(1.dp)
@@ -593,15 +520,14 @@ fun ItemScreen(
                         }
                         Spacer(
                             Modifier
-                                .height(1.dp)
+                                .height(2.dp)
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.background)
                         )
-
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 24.dp),
+                                .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -639,13 +565,74 @@ fun ItemScreen(
                                 Text(
                                     text = "Аудио карточка",
                                     fontFamily = MyFontFamily,
-                                    fontSize = 18.sp,
                                     color = MaterialTheme.colorScheme.onBackground
                                 )
                             }
                             CustomSwitch(
                                 checked = isAudioCard,
                                 onCheckedChange = { isAudioCard = it })
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (isEditMode) {
+                                Button(
+                                    onClick = { showDeleteDialog = true },
+                                    shape = RoundedCornerShape(50),
+                                    contentPadding = PaddingValues(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.onBackground
+                                    ),
+                                ) {
+                                    Text(
+                                        text = "Удалить",
+                                        fontFamily = MyFontFamily,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                            }
+                            if (editingItem != null) {
+                                Spacer(Modifier.width(12.dp))
+                                Button(
+                                    onClick = { showReadingDialog = true },
+                                    shape = RoundedCornerShape(50),
+                                    contentPadding = PaddingValues(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.onBackground
+                                    )
+                                ) {
+                                    Text(
+                                        text = "Читать",
+                                        fontFamily = MyFontFamily,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                            }
+                            if (editingItem != null) {
+                                Spacer(Modifier.width(12.dp))
+                                Button(
+                                    onClick = { showMoveBottomSheet = true },
+                                    shape = RoundedCornerShape(50),
+                                    contentPadding = PaddingValues(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.onBackground
+                                    )
+                                ) {
+                                    Text(
+                                        text = "Переместить",
+                                        fontFamily = MyFontFamily,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                }
+                            }
                         }
                     }
                 }

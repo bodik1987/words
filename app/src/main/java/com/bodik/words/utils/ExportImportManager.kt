@@ -14,7 +14,7 @@ object ExportImportManager {
         }
         items.forEach { item ->
             sb.appendLine(
-                "#ITEM:${item.id}|${item.name}|${item.description}|" +
+                "#ITEM:${item.id}|${item.name}|${item.description ?: ""}|" +
                         "${item.example ?: ""}|${item.isAudioCard}|${item.targetLanguage}|${item.folderId ?: ""}"
             )
         }
@@ -41,7 +41,7 @@ object ExportImportManager {
                             Item(
                                 id = parts[0],
                                 name = parts[1],
-                                description = parts[2],
+                                description = parts[2].takeIf { it.isNotBlank() },
                                 example = parts[3].takeIf { it.isNotBlank() },
                                 isAudioCard = parts[4].toBooleanStrictOrNull() ?: false,
                                 targetLanguage = parts[5],

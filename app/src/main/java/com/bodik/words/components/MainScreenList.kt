@@ -48,7 +48,7 @@ fun MainScreenList(
         if (searchQuery.isBlank()) unassignedItems
         else unassignedItems.filter { item ->
             item.name.contains(searchQuery, ignoreCase = true) ||
-                    item.description.contains(searchQuery, ignoreCase = true)
+                    item.description?.contains(searchQuery, ignoreCase = true) == true
         }
     }
 

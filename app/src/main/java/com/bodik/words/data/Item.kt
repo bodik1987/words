@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Item(
     val id: String,
     val name: String,                    // Слово/фраза
-    val description: String,             // Перевод/значение
+    val description: String? = null,             // Перевод/значение
     val example: String? = null,         // Пример использования
     val isAudioCard: Boolean = false,    // Тип карточки
     val targetLanguage: String = "pl",   // Язык озвучивания
