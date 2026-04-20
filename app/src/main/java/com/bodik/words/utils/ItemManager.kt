@@ -86,4 +86,31 @@ class ItemManager(context: Context) {
     fun getItemById(itemId: String): Item? {
         return getAllItems().find { it.id == itemId }
     }
+
+    // Study_session
+    private fun getQueueKey(folderId: String) = "study_queue_ids_$folderId"
+
+    fun saveStudySession(folderId: String, queue: List<Item>) {
+        val ids = queue.map { it.id }
+        val json = Json.encodeToString(ids)
+        prefs.edit { putString(getQueueKey(folderId), json) }
+    }
+
+    fun getSavedStudySession(folderId: String): List<Item> {
+        val json = prefs.getString(getQueueKey(folderId), null) ?: return emptyList()
+        return try {
+            val ids: List<String> = Json.decodeFromString(json)
+            val allItems = getAllItems()
+            // Возвращаем только те элементы, которые все еще существуют и принадлежат этой папке
+            ids.mapNotNull { id ->
+                allItems.find { it.id == id && it.folderId == folderId }
+            }
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    fun clearStudySession(folderId: String) {
+        prefs.edit { remove(getQueueKey(folderId)) }
+    }
 }

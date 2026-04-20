@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -70,12 +73,14 @@ fun StudyScreen(
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
 
+// В StudyScreen.kt
     var queue by remember {
-        mutableStateOf(
-            itemManager.getItemsInFolder(folderId)
-                .filter { it.isAudioCard }
-                .toMutableList()
-        )
+        val saved = itemManager.getSavedStudySession(folderId) // Загружаем сессию конкретной папки
+        val initialList = saved.ifEmpty {
+            // Если сессии нет, создаем новую из аудио-карточек этой папки
+            itemManager.getItemsInFolder(folderId).filter { it.isAudioCard }
+        }
+        mutableStateOf(initialList.toMutableList())
     }
 
     var showAnswer by remember { mutableStateOf(false) }
@@ -122,6 +127,18 @@ fun StudyScreen(
         speed = 0.6f
     )
 
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    DisposableEffect(folderId) {
+        onDispose {
+            if (queue.isNotEmpty()) {
+                itemManager.saveStudySession(folderId, queue) // Сохраняем именно для этой папки
+            } else {
+                itemManager.clearStudySession(folderId) // Очищаем, если всё выучено
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -142,7 +159,28 @@ fun StudyScreen(
                             contentDescription = "Назад"
                         )
                     }
-                }
+                },
+                actions = {
+                    if (current != null) {
+                        Button(
+                            onClick = { showDeleteDialog = true },
+                            modifier = Modifier.size(44.dp),
+                            shape = CircleShape,
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                contentColor = MaterialTheme.colorScheme.onBackground
+                            )
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.delete),
+                                contentDescription = "Delete",
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                    }
+                },
             )
         }
     ) { paddingValues ->
@@ -169,7 +207,7 @@ fun StudyScreen(
                         }
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            text = "Все слова изучены!",
+                            text = "Нет слов!",
                             fontFamily = MyFontFamily,
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 24.sp
@@ -389,4 +427,55 @@ fun StudyScreen(
             }
         }
     }
+    if (showDeleteDialog && current != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            title = {
+                Text(
+                    "Удалить карточку?",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    "Слово будет полностью удалено из приложения. Вы уверены?",
+                    fontFamily = MyFontFamily
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // 1. Удаляем из хранилища
+                    itemManager.deleteItem(current.id)
+
+                    // 2. Удаляем из текущей очереди экрана
+                    queue = queue.drop(1).toMutableList()
+
+                    // 3. Сбрасываем состояния
+                    showAnswer = false
+                    showDeleteDialog = false
+                    tts.stop()
+                }) {
+                    Text(
+                        "Удалить",
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text(
+                        "Отмена",
+                        fontFamily = MyFontFamily,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            shape = RoundedCornerShape(28.dp)
+        )
+    }
 }
+
