@@ -40,7 +40,7 @@ class NotificationReceiver : BroadcastReceiver() {
         }
 
         val notification = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info) // Тут потом поставишь свою иконку
+            .setSmallIcon(com.bodik.words.R.drawable.checked) // Тут потом поставишь свою иконку
             .setContentTitle("")
             .setContentTitle("")
             .setContentText(message)

@@ -35,6 +35,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -50,6 +51,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
@@ -78,10 +80,8 @@ import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.ItemManager
 import com.bodik.words.utils.NotificationReceiver
-import java.text.SimpleDateFormat
+import com.bodik.words.utils.formatReminderDate
 import java.util.Calendar
-import java.util.Date
-import java.util.Locale
 
 
 @SuppressLint("DefaultLocale")
@@ -234,14 +234,31 @@ fun ItemScreen(
         DatePickerDialog(
             onDismissRequest = { showTimeDialog = false },
             confirmButton = {},
-            dismissButton = {}
+            dismissButton = {},
+            colors = DatePickerDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+            )
         ) {
             Column {
                 DatePicker(
                     state = datePickerState,
                     title = null,
                     headline = null,
-                    showModeToggle = false
+                    showModeToggle = false,
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        // Цвет круга вокруг выбранной даты (то, на что указывает стрелка)
+                        selectedDayContainerColor = Blue80,
+                        // Цвет цифры внутри этого круга
+                        selectedDayContentColor = Color.White,
+                        // Цвет кружка текущей даты (сегодня)
+                        todayDateBorderColor = Blue80,
+                        todayContentColor = Blue80,
+                        // Цвет стрелок переключения месяцев и заголовка "April 2026"
+                        navigationContentColor = MaterialTheme.colorScheme.onSurface,
+                        titleContentColor = MaterialTheme.colorScheme.onSurface,
+                        headlineContentColor = MaterialTheme.colorScheme.onSurface
+                    )
                 )
                 HorizontalDivider()
                 ListItem(
@@ -275,6 +292,7 @@ fun ItemScreen(
                         Text(
                             "Отмена",
                             fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                         )
                     }
                     TextButton(onClick = {
@@ -301,7 +319,13 @@ fun ItemScreen(
                         } else {
                             showTimeDialog = false
                         }
-                    }) { Text("Готово", fontFamily = MyFontFamily) }
+                    }) {
+                        Text(
+                            "Готово",
+                            fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 }
             }
         }
@@ -309,20 +333,42 @@ fun ItemScreen(
         if (showTimePicker) {
             AlertDialog(
                 onDismissRequest = { showTimePicker = false },
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 confirmButton = {
                     TextButton(onClick = {
                         selectedTimeDialogText =
                             String.format("%02d:%02d", timePickerState.hour, timePickerState.minute)
                         isTimeSelected = true
                         showTimePicker = false
-                    }) { Text("OK", fontFamily = MyFontFamily) }
+                    }) {
+                        Text(
+                            "OK", fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
                 },
                 dismissButton = {
                     TextButton(onClick = {
                         showTimePicker = false
-                    }) { Text("Отмена", fontFamily = MyFontFamily) }
+                    }) {
+                        Text(
+                            "Отмена", fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                        )
+                    }
                 },
-                text = { TimePicker(state = timePickerState) }
+                text = {
+                    TimePicker(
+                        state = timePickerState, colors = TimePickerDefaults.colors(
+                            clockDialColor = MaterialTheme.colorScheme.background,
+                            clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                            timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.background,
+                            selectorColor = Blue80,
+                            timeSelectorSelectedContainerColor = Blue80.copy(alpha = 0.2f),
+                            timeSelectorSelectedContentColor = Blue80
+                        )
+                    )
+                }
             )
         }
     }
@@ -476,13 +522,13 @@ fun ItemScreen(
                         )
                         Spacer(
                             Modifier
-                                .height(1.dp)
+                                .height(2.dp)
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.background)
                         )
 
                         val formattedDate = reminderTime?.let {
-                            SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(Date(it))
+                            formatReminderDate(it)
                         } ?: "Добавить дату и время"
 
                         Row(
@@ -520,7 +566,7 @@ fun ItemScreen(
                         }
                         Spacer(
                             Modifier
-                                .height(2.dp)
+                                .height(1.dp)
                                 .fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.background)
                         )

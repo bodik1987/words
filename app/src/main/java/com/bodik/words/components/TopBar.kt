@@ -50,7 +50,7 @@ fun TopBar(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Слова",
+                    text = "Блокнот",
                     maxLines = 1,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = MyFontFamily,

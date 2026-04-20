@@ -29,6 +29,7 @@ import com.bodik.words.R
 import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.ReorderableIslandColumn
 import com.bodik.words.utils.ItemManager
+import com.bodik.words.utils.formatReminderDate
 import java.util.Locale
 
 @Composable
@@ -95,7 +96,7 @@ fun FolderScreenList(
                             java.util.Locale.getDefault()
                         )
                         val prefix = if (time < System.currentTimeMillis()) "Истекло: " else ""
-                        prefix + sdf.format(java.util.Date(time))
+                        prefix + formatReminderDate(time)
                     }
                     val exampleText =
                         listOfNotNull(wordItem.example, reminderLabel).joinToString("\n")
