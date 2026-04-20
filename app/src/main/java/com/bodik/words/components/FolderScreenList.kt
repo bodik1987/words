@@ -131,6 +131,7 @@ fun FolderScreenList(
                             }
                         } else null,
                         example = exampleText,
+                        compact = wordItem.description.isNullOrBlank() && exampleText == null,
                         onClick = { id ->
                             navController.navigate("item/edit/$id")
                         }

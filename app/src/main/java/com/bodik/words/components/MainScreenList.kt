@@ -82,6 +82,7 @@ fun MainScreenList(
                             label = item.name,
                             supportingText = item.description,
                             example = if (folderName != null) "📁 $folderName" else item.example,
+                            compact = item.description.isNullOrBlank() && item.example.isNullOrBlank() && folderName == null,
                             onClick = { id ->
                                 // Переход на экран редактирования через navController
                                 navController.navigate("item/edit/$id")
@@ -196,6 +197,7 @@ fun MainScreenList(
                                 }
                             } else null,
                             example = exampleText,
+                            compact = item.description.isNullOrBlank() && exampleText == null,
                             onClick = { id ->
                                 navController.navigate("item/edit/$id")
                             },
