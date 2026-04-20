@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -127,6 +128,9 @@ fun StudyScreen(
                         fontWeight = FontWeight.SemiBold
                     )
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -214,7 +218,7 @@ fun StudyScreen(
                                         fontSize = 22.sp,
                                         lineHeight = 32.sp,
                                         textAlign = TextAlign.Center,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
@@ -235,7 +239,8 @@ fun StudyScreen(
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 22.sp,
                                         lineHeight = 32.sp,
-                                        textAlign = TextAlign.Center
+                                        textAlign = TextAlign.Center,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
 
                                     if (!item.example.isNullOrBlank()) {
@@ -246,7 +251,7 @@ fun StudyScreen(
                                             fontSize = 14.sp,
                                             lineHeight = 24.sp,
                                             textAlign = TextAlign.Center,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(
+                                            color = MaterialTheme.colorScheme.onSurface.copy(
                                                 alpha = 0.5f
                                             )
                                         )

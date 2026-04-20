@@ -62,7 +62,7 @@ fun AddFolderBottomSheet(
                 .align(Alignment.CenterHorizontally)
                 .navigationBarsPadding(),
             shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.background
+            color = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {
             Column(
                 Modifier
@@ -92,7 +92,7 @@ fun AddFolderBottomSheet(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(34.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    color = MaterialTheme.colorScheme.onSecondary,
                 ) {
                     Column(
                         modifier = Modifier

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,7 +69,7 @@ fun CustomSwitch(
                     spotColor = Color.Black.copy(alpha = 0.5f)
                 )
                 .clip(RoundedCornerShape(50))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
         )
     }
 }

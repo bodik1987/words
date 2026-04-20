@@ -123,7 +123,7 @@ fun WordTextField(
                     fontFamily = fontFamily ?: FontFamily.Default,
                     fontWeight = fontWeight ?: FontWeight.Normal,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
             } else {
                 SelectionContainer {
@@ -133,7 +133,7 @@ fun WordTextField(
                             fontSize = fontSize,
                             fontFamily = fontFamily ?: FontFamily.Default,
                             fontWeight = fontWeight ?: FontWeight.Normal,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onSurface
                         ),
                         maxLines = maxLines,
                         overflow = TextOverflow.Ellipsis,
@@ -164,7 +164,7 @@ fun WordTextField(
                 fontSize = fontSize,
                 fontFamily = fontFamily ?: FontFamily.Default,
                 fontWeight = fontWeight ?: FontWeight.Normal,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onSurface
             ),
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Sentences
@@ -198,7 +198,7 @@ fun WordTextField(
                             fontFamily = fontFamily ?: FontFamily.Default,
                             fontWeight = fontWeight ?: FontWeight.Normal,
                             overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
                     }
                     innerTextField()

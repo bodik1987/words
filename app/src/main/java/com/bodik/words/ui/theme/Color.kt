@@ -15,6 +15,9 @@ val Blue80 = Color(0xFF0187FE)
 
 // Новый цвет фона
 val AppBackgroundLight = Color(0xFFF2F2F6)
+val ButtonLight = Color(0xFFF2F2F6)
+
 
 // Цвет для темной темы (обычно почти черный)
 val AppBackgroundDark = Color(0xFF1C1C1E)
+val ButtonDark = Color(0xFF3D3D3D)

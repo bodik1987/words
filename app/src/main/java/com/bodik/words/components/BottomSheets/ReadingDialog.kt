@@ -36,7 +36,7 @@ fun ReadingDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(24.dp),
             color = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {
             Column(

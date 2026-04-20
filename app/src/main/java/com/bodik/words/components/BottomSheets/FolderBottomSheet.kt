@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -27,12 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.LottieConstants
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
-import com.airbnb.lottie.compose.rememberLottieComposition
-import com.bodik.words.R
 import com.bodik.words.ui.theme.MyFontFamily
 import kotlinx.coroutines.launch
 
@@ -55,18 +48,10 @@ fun FolderBottomSheet(
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
     }
 
-    val lottieGame by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.game))
-    val progressLottieGame by animateLottieCompositionAsState(
-        composition = lottieGame,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true,
-        speed = 1f
-    )
-
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         dragHandle = null,
     ) {
         Column(
@@ -88,19 +73,10 @@ fun FolderBottomSheet(
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
             ) {
-                if (lottieGame != null) {
-                    LottieAnimation(
-                        composition = lottieGame,
-                        progress = { progressLottieGame },
-                        modifier = Modifier
-                            .size(44.dp)
-                            .padding(end = 10.dp)
-                    )
-                }
                 Text(
                     "Учить слова",
                     fontFamily = MyFontFamily,
@@ -118,7 +94,7 @@ fun FolderBottomSheet(
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
             ) {

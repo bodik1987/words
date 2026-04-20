@@ -85,7 +85,7 @@ fun SettingsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         dragHandle = null,
     ) {
         Column(
@@ -122,7 +122,7 @@ fun SettingsBottomSheet(
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
             ) {
@@ -145,7 +145,7 @@ fun SettingsBottomSheet(
                     .height(52.dp),
                 shape = RoundedCornerShape(34.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ),
             ) {

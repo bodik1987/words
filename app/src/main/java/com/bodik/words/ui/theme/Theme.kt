@@ -20,7 +20,8 @@ private val LightColorScheme = lightColorScheme(
     background = AppBackgroundLight,
     surface = AppBackgroundLight,
     onBackground = Color.Black,
-    onSurface = Color.Black
+    onSurface = Color.Black,
+    onSecondary = ButtonLight,
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -28,11 +29,14 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80,
 
+
     // Для темной темы:
-    background = AppBackgroundDark,
+    background = Color.Black,
     surface = AppBackgroundDark,
     onBackground = Color.White,
-    onSurface = Color.White
+    onSurface = Color.White,
+    onSecondary = ButtonDark,
+    surfaceContainerLowest = AppBackgroundDark
 )
 
 @Composable

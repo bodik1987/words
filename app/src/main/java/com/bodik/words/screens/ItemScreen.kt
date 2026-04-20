@@ -53,6 +53,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
@@ -400,7 +401,7 @@ fun ItemScreen(
                     onBack()
                 }) {
                     Text(
-                        "Закрыть",
+                        "Отменить изменения",
                         color = MaterialTheme.colorScheme.error,
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold
@@ -410,13 +411,15 @@ fun ItemScreen(
             shape = RoundedCornerShape(28.dp)
         )
     }
-    //endregion
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 title = {
                     Text(
                         text = titleText,
