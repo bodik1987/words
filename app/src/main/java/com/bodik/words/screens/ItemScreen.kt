@@ -483,7 +483,7 @@ fun ItemScreen(
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(RADIUS_OUTER),
                     color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
                     Column(
@@ -495,7 +495,7 @@ fun ItemScreen(
                         WordTextField(
                             value = name,
                             onValueChange = { name = it },
-                            placeholder = "Слово/фраза",
+                            placeholder = "Заголовок",
                             fontSize = 22.sp,
                             maxLines = 6,
                             readOnly = false,
@@ -506,7 +506,7 @@ fun ItemScreen(
                         WordTextField(
                             value = description,
                             onValueChange = { description = it },
-                            placeholder = "Перевод/значение",
+                            placeholder = "Описание",
                             fontSize = 18.sp,
                             maxLines = 30,
                             readOnly = false,
@@ -523,7 +523,7 @@ fun ItemScreen(
                         WordTextField(
                             value = example,
                             onValueChange = { example = it },
-                            placeholder = "Пример (необязательно)",
+                            placeholder = "Примечание",
                             fontSize = 18.sp,
                             maxLines = 6,
                             readOnly = false,
@@ -536,14 +536,14 @@ fun ItemScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(RADIUS_OUTER),
                     color = MaterialTheme.colorScheme.surfaceContainerLowest,
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         val formattedDate = reminderTime?.let {
                             formatReminderDate(it)
@@ -552,7 +552,7 @@ fun ItemScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
+                                .padding(horizontal = 16.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null

@@ -60,6 +60,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bodik.words.R
+import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.utils.ItemManager
 import java.util.Locale
@@ -160,7 +161,7 @@ fun StudyScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = if (total > 0) "Осталось: $total" else "Готово!",
+                        text = if (total > 0) "Осталось $total" else "",
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -191,7 +192,8 @@ fun StudyScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.delete),
                                 contentDescription = "Delete",
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(22.dp),
+                                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
@@ -231,7 +233,7 @@ fun StudyScreen(
                         Spacer(Modifier.height(32.dp))
                         Button(
                             onClick = onBack,
-                            shape = RoundedCornerShape(34.dp),
+                            shape = RoundedCornerShape(RADIUS_OUTER),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                                 contentColor = MaterialTheme.colorScheme.onBackground
@@ -261,7 +263,7 @@ fun StudyScreen(
                     ) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(24.dp),
+                            shape = RoundedCornerShape(RADIUS_OUTER),
                             color = MaterialTheme.colorScheme.surfaceContainerLowest
                         ) {
                             Column(
@@ -368,7 +370,7 @@ fun StudyScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        shape = RoundedCornerShape(34.dp),
+                        shape = RoundedCornerShape(RADIUS_OUTER),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                             contentColor = MaterialTheme.colorScheme.onBackground
@@ -398,7 +400,7 @@ fun StudyScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(52.dp),
-                            shape = RoundedCornerShape(34.dp),
+                            shape = RoundedCornerShape(RADIUS_OUTER),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
                                 contentColor = MaterialTheme.colorScheme.error
@@ -423,7 +425,7 @@ fun StudyScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(52.dp),
-                            shape = RoundedCornerShape(34.dp),
+                            shape = RoundedCornerShape(RADIUS_OUTER),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF62BE63),
                                 contentColor = Color.White

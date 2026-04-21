@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
@@ -54,95 +55,86 @@ fun RenameFolderBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.Transparent,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         dragHandle = null,
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .align(Alignment.CenterHorizontally)
-                .navigationBarsPadding(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.background
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 24.dp),
         ) {
-            Column(
+            Row(
                 Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 24.dp),
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Переименовать папку",
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
+                Text(
+                    text = "Переименовать папку",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
 
-                Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(34.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                    ) {
-                        WordTextField(
-                            value = title,
-                            onValueChange = { title = it },
-                            placeholder = "Название папки",
-                            fontSize = 20.sp,
-                            maxLines = 3,
-                            fontFamily = MyFontFamily,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                val isChanged = title.isNotBlank() && title.trim() != folderName
-
-                Button(
-                    onClick = {
-                        if (isChanged) {
-                            onRenameFolder(title.trim())
-                            closeSheet()
-                        }
-                    },
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                color = MaterialTheme.colorScheme.onSecondary,
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(34.dp),
-                    enabled = isChanged,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isChanged) Orange80
-                        else MaterialTheme.colorScheme.surfaceContainerHighest,
-                        contentColor = if (isChanged) Color.White
-                        else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    ),
+                        .padding(vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    Text(
-                        "Сохранить",
+                    WordTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        placeholder = "Название папки",
+                        fontSize = 20.sp,
+                        maxLines = 3,
                         fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 18.sp
+                        fontWeight = FontWeight.Medium
                     )
                 }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            val isChanged = title.isNotBlank() && title.trim() != folderName
+
+            Button(
+                onClick = {
+                    if (isChanged) {
+                        onRenameFolder(title.trim())
+                        closeSheet()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                enabled = isChanged,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isChanged) Orange80
+                    else MaterialTheme.colorScheme.surfaceContainerHighest,
+                    contentColor = if (isChanged) Color.White
+                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                ),
+            ) {
+                Text(
+                    "Сохранить",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                )
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.theme.MyFontFamily
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,7 @@ fun FolderBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(34.dp),
+                shape = RoundedCornerShape(RADIUS_OUTER),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
@@ -92,7 +93,7 @@ fun FolderBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(34.dp),
+                shape = RoundedCornerShape(RADIUS_OUTER),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
@@ -113,7 +114,7 @@ fun FolderBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(34.dp),
+                shape = RoundedCornerShape(RADIUS_OUTER),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.error
