@@ -61,6 +61,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bodik.words.R
 import com.bodik.words.ui.components.RADIUS_OUTER
+import com.bodik.words.ui.theme.Green
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.utils.ItemManager
 import java.util.Locale
@@ -427,7 +428,7 @@ fun StudyScreen(
                                 .height(52.dp),
                             shape = RoundedCornerShape(RADIUS_OUTER),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF62BE63),
+                                containerColor = Green,
                                 contentColor = Color.White
                             )
                         ) {

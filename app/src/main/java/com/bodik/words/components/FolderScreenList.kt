@@ -89,24 +89,17 @@ fun FolderScreenList(
                     }
                 }
 
-                val menuItems = items.map { wordItem ->
-                    val reminderLabel = wordItem.reminderTime?.let { time ->
-                        val sdf = java.text.SimpleDateFormat(
-                            "dd MMM, HH:mm",
-                            java.util.Locale.getDefault()
-                        )
-                        val prefix = if (time < System.currentTimeMillis()) "Истекло: " else ""
-                        prefix + formatReminderDate(time)
+                val menuItems = items.map { item ->
+                    val reminder = item.reminderTime?.let { time ->
+                        val isExpired = time < System.currentTimeMillis()
+                        Pair(formatReminderDate(time), isExpired)
                     }
-                    val exampleText =
-                        listOfNotNull(wordItem.example, reminderLabel).joinToString("\n")
-                            .ifBlank { null }
 
                     IslandListItem(
-                        id = wordItem.id,
-                        label = wordItem.name,
-                        supportingText = wordItem.description,
-                        leadingContent = if (wordItem.isAudioCard) {
+                        id = item.id,
+                        label = item.name,
+                        supportingText = item.description,
+                        leadingContent = if (item.isAudioCard) {
                             {
                                 Icon(
                                     painter = painterResource(id = R.drawable.volume),
@@ -119,10 +112,10 @@ fun FolderScreenList(
                                         ) {
                                             tts.language =
                                                 Locale.forLanguageTag(
-                                                    wordItem.targetLanguage ?: "pl"
+                                                    item.targetLanguage ?: "pl"
                                                 )
                                             tts.speak(
-                                                wordItem.name,
+                                                item.name,
                                                 TextToSpeech.QUEUE_FLUSH,
                                                 null,
                                                 null
@@ -131,8 +124,11 @@ fun FolderScreenList(
                                 )
                             }
                         } else null,
-                        example = exampleText,
-                        compact = wordItem.description.isNullOrBlank() && exampleText == null,
+                        example = item.example,
+                        reminder = reminder,
+                        compact = item.description.isNullOrBlank()
+                                && item.example.isNullOrBlank()
+                                && reminder == null,
                         onClick = { id ->
                             navController.navigate("item/edit/$id")
                         }

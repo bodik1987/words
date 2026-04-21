@@ -34,6 +34,7 @@ import com.bodik.words.components.FolderScreenFloatingButton
 import com.bodik.words.components.FolderScreenList
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.utils.FolderManager
+import com.bodik.words.utils.ItemManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +51,12 @@ fun FolderScreen(
 
     var folderName by remember(folderId) {
         mutableStateOf(folderManager.getFolders().find { it.id == folderId }?.name ?: "Папка")
+    }
+
+    val itemManager = remember { ItemManager(context) }
+
+    val hasAudioCards = remember(folderId, refreshTrigger) {
+        itemManager.getItemsInFolder(folderId).any { it.isAudioCard }
     }
 
     Scaffold(
@@ -114,6 +121,7 @@ fun FolderScreen(
         FolderBottomSheet(
             onDismiss = { showFolderBottomSheet = false },
             folderName = folderName,
+            hasAudioCards = hasAudioCards,
             onDeleteFolder = {
                 folderManager.deleteFolder(folderId)
                 onBack()
@@ -123,7 +131,7 @@ fun FolderScreen(
                 folderName = newName
                 showFolderBottomSheet = false
             },
-            onStudy = { navController.navigate("study/$folderId") }
+            onStudy = { navController.navigate("study/$folderId") },
         )
     }
 }

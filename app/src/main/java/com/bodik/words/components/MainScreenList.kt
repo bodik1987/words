@@ -156,18 +156,10 @@ fun MainScreenList(
                     }
 
                     val itemMenuItems = filteredItems.map { item ->
-                        val reminderLabel = item.reminderTime?.let { time ->
-                            val sdf = java.text.SimpleDateFormat(
-                                "dd MMM, HH:mm",
-                                Locale.getDefault()
-                            )
-                            val prefix =
-                                if (time < System.currentTimeMillis()) "Истекло: " else ""
-                            prefix + formatReminderDate(time)
+                        val reminder = item.reminderTime?.let { time ->
+                            val isExpired = time < System.currentTimeMillis()
+                            Pair(formatReminderDate(time), isExpired)
                         }
-                        val exampleText =
-                            listOfNotNull(item.example, reminderLabel).joinToString("\n")
-                                .ifBlank { null }
 
                         IslandListItem(
                             id = item.id,
@@ -198,8 +190,11 @@ fun MainScreenList(
                                     )
                                 }
                             } else null,
-                            example = exampleText,
-                            compact = item.description.isNullOrBlank() && exampleText == null,
+                            example = item.example,
+                            reminder = reminder,
+                            compact = item.description.isNullOrBlank()
+                                    && item.example.isNullOrBlank()
+                                    && reminder == null,
                             onClick = { id ->
                                 navController.navigate("item/edit/$id")
                             },

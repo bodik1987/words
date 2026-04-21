@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import sh.calvin.reorderable.ReorderableColumn
@@ -54,6 +55,7 @@ data class IslandListItem(
     val label: String,
     val supportingText: String? = null,
     val example: String? = null,
+    val reminder: Pair<String, Boolean>? = null, // text + isExpired
     val leadingContent: (@Composable () -> Unit)? = null,
     val trailingContent: (@Composable () -> Unit)? = null,
     val onClick: (String) -> Unit = {},
@@ -159,6 +161,17 @@ fun ReorderableIslandColumn(
                                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                                 )
                             }
+                            item.reminder?.let { (text, isExpired) ->
+                                Text(
+                                    text = text,
+                                    fontFamily = MyFontFamily,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = if (isExpired) MaterialTheme.colorScheme.error else Blue80,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
                         }
                     }),
                     leadingContent = item.leadingContent,
@@ -167,7 +180,7 @@ fun ReorderableIslandColumn(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     ),
                     modifier = Modifier
-                        .then(if (item.compact) Modifier.heightIn(max = 48.dp) else Modifier)
+                        .then(if (item.compact && item.reminder == null) Modifier.heightIn(max = 48.dp) else Modifier)
                         .longPressDraggableHandle(
                             onDragStarted = {
                                 haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)

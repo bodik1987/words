@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 fun FolderBottomSheet(
     onDismiss: () -> Unit,
     folderName: String,
+    hasAudioCards: Boolean,
     onDeleteFolder: () -> Unit,
     onRenameFolder: (String) -> Unit,
     onStudy: () -> Unit
@@ -64,29 +65,27 @@ fun FolderBottomSheet(
         ) {
             Spacer(Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    onStudy()
-                    closeSheet()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.onSecondary,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                ),
-            ) {
-                Text(
-                    "Учить слова",
-                    fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp
-                )
+            if (hasAudioCards) {
+                Button(
+                    onClick = { onStudy(); closeSheet() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(RADIUS_OUTER),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.onSecondary,
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    ),
+                ) {
+                    Text(
+                        "Учить аудио карточки",
+                        fontFamily = MyFontFamily,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
             }
-
-            Spacer(Modifier.height(8.dp))
 
             Button(
                 onClick = { showRenameSheet = true },

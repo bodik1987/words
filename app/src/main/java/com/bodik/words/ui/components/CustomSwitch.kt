@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bodik.words.ui.theme.Green
 
 @Composable
 fun CustomSwitch(
@@ -50,7 +51,7 @@ fun CustomSwitch(
                 spotColor = Color.Black.copy(alpha = 0.2f)
             )
             .clip(RoundedCornerShape(height))
-            .background(if (checked) Color(0xFF62BE63) else Color(0xFFE2E2E4))
+            .background(if (checked) Green else Color(0xFFC5C5C7))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
