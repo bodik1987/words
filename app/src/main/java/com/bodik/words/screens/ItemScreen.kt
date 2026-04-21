@@ -633,10 +633,7 @@ fun ItemScreen(
                                                 text = {
                                                     Text(
                                                         language.displayName,
-                                                        fontSize = 16.sp,
-                                                        color = MaterialTheme.colorScheme.onBackground.copy(
-                                                            alpha = 0.6f
-                                                        )
+                                                        fontSize = 16.sp
                                                     )
                                                 },
                                                 onClick = {
@@ -676,63 +673,84 @@ fun ItemScreen(
                             )
                             Row(
                                 modifier = Modifier
+                                    .padding(horizontal = 16.dp)
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { showMoveBottomSheet = true },
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Button(
-                                    onClick = { showDeleteDialog = true },
-                                    shape = RoundedCornerShape(50),
-                                    contentPadding = PaddingValues(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,
-                                        contentColor = MaterialTheme.colorScheme.onBackground
-                                    ),
-                                ) {
-                                    Text(
-                                        text = "Удалить",
-                                        fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(
-                                            alpha = 0.6f
-                                        )
-                                    )
-                                }
-                                Spacer(Modifier.width(12.dp))
-                                Button(
-                                    onClick = { showReadingDialog = true },
-                                    shape = RoundedCornerShape(50),
-                                    contentPadding = PaddingValues(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,
-                                        contentColor = MaterialTheme.colorScheme.onBackground
-                                    )
-                                ) {
-                                    Text(
-                                        text = "Читать",
-                                        fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(
-                                            alpha = 0.6f
-                                        )
-                                    )
-                                }
-                                Spacer(Modifier.width(12.dp))
-                                Button(
-                                    onClick = { showMoveBottomSheet = true },
-                                    shape = RoundedCornerShape(50),
-                                    contentPadding = PaddingValues(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,
-                                        contentColor = MaterialTheme.colorScheme.onBackground
-                                    )
-                                ) {
-                                    Text(
-                                        text = "Переместить",
-                                        fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(
-                                            alpha = 0.6f
-                                        )
-                                    )
-                                }
+                                Icon(
+                                    painterResource(id = R.drawable.folder),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = "Переместить",
+                                    fontFamily = MyFontFamily,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                )
+                            }
+                            Spacer(
+                                Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { showReadingDialog = true },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.reading),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = "Режим чтения",
+                                    fontFamily = MyFontFamily,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                )
+                            }
+                            Spacer(
+                                Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { showDeleteDialog = true },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painterResource(id = R.drawable.delete),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = "Удалить",
+                                    fontFamily = MyFontFamily,
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                )
                             }
                         }
                     }

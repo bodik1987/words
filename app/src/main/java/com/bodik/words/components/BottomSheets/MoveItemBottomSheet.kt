@@ -36,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bodik.words.R
+import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.theme.MyFontFamily
 import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.FolderManager
@@ -65,97 +66,88 @@ fun MoveItemBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.Transparent,
+        containerColor = MaterialTheme.colorScheme.background,
         dragHandle = null,
     ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(0.95f)
-                .align(Alignment.CenterHorizontally)
-                .navigationBarsPadding(),
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.background
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 12.dp)
+                .padding(bottom = 24.dp),
         ) {
-            Column(
+            Row(
                 Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 24.dp),
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Переместить в папку",
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp,
-                        color = MaterialTheme.colorScheme.onBackground
+                Text(
+                    text = "Переместить в папку",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    FolderIslandItem(
+                        name = "Без папки",
+                        isSelected = selectedFolderId == null,
+                        isFirst = true,
+                        isLast = folders.isEmpty(),
+                        onClick = { selectedFolderId = null }
                     )
-                }
 
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        FolderIslandItem(
-                            name = "Без папки",
-                            isSelected = selectedFolderId == null,
-                            isFirst = true,
-                            isLast = folders.isEmpty(),
-                            onClick = { selectedFolderId = null }
+                    folders.forEachIndexed { index, folder ->
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.background)
                         )
-
-                        folders.forEachIndexed { index, folder ->
-                            Spacer(
-                                Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
-                            FolderIslandItem(
-                                name = folder.name,
-                                isSelected = selectedFolderId == folder.id,
-                                isFirst = false,
-                                isLast = index == folders.lastIndex,
-                                onClick = { selectedFolderId = folder.id }
-                            )
-                        }
+                        FolderIslandItem(
+                            name = folder.name,
+                            isSelected = selectedFolderId == folder.id,
+                            isFirst = false,
+                            isLast = index == folders.lastIndex,
+                            onClick = { selectedFolderId = folder.id }
+                        )
                     }
                 }
+            }
 
-                Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(24.dp))
 
-                Button(
-                    onClick = {
-                        if (selectedFolderId != currentFolderId) {
-                            onMove(itemId, selectedFolderId)
-                        }
-                        closeSheet()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = RoundedCornerShape(34.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Orange80,
-                        contentColor = androidx.compose.ui.graphics.Color.White
-                    ),
-                ) {
-                    Text(
-                        "Переместить",
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 18.sp
-                    )
-                }
+            Button(
+                onClick = {
+                    if (selectedFolderId != currentFolderId) {
+                        onMove(itemId, selectedFolderId)
+                    }
+                    closeSheet()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Orange80,
+                    contentColor = androidx.compose.ui.graphics.Color.White
+                ),
+            ) {
+                Text(
+                    "Переместить",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                )
             }
         }
     }
