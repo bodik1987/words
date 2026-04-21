@@ -84,6 +84,55 @@ import com.bodik.words.utils.NotificationReceiver
 import com.bodik.words.utils.formatReminderDate
 import java.util.Calendar
 
+// ─── Переиспользуемые компоненты ────────────────────────────────────────────
+
+@Composable
+private fun SectionDivider() = Spacer(
+    Modifier
+        .height(1.dp)
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.background)
+)
+
+@Composable
+private fun SettingsRow(
+    iconRes: Int,
+    label: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    trailingContent: @Composable (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .then(
+                if (onClick != null) Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClick
+                ) else Modifier
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(
+            text = label,
+            fontFamily = MyFontFamily,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+            modifier = Modifier.weight(1f)
+        )
+        trailingContent?.invoke()
+    }
+}
+
+// ─── Основной экран ──────────────────────────────────────────────────────────
 
 @SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,12 +158,12 @@ fun ItemScreen(
                 ?: Language.PL
         )
     }
+
     var showMoveBottomSheet by remember { mutableStateOf(false) }
     var showLanguageMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showDiscardDialog by remember { mutableStateOf(false) }
     var showReadingDialog by remember { mutableStateOf(false) }
-
     var reminderTime by remember { mutableStateOf(editingItem?.reminderTime) }
     var showTimeDialog by remember { mutableStateOf(false) }
 
@@ -127,9 +176,6 @@ fun ItemScreen(
         is24Hour = true
     )
 
-    // Если в режиме редактирования, можно оставить заголовок пустым или написать "Правка"
-    val titleText = if (isEditMode) "" else "Добавить"
-
     val hasChanges = if (isEditMode) {
         name != (editingItem?.name ?: "") ||
                 description != (editingItem?.description ?: "") ||
@@ -139,14 +185,10 @@ fun ItemScreen(
         name.isNotBlank() || description.isNotBlank() || example.isNotBlank()
     }
 
-    BackHandler(enabled = hasChanges) {
-        showDiscardDialog = true
-    }
+    BackHandler(enabled = hasChanges) { showDiscardDialog = true }
 
     val saveItem = {
         if (name.isNotBlank()) {
-            val finalReminderTime = reminderTime // берем из нашего нового состояния
-
             if (isEditMode) {
                 val updatedItem = editingItem.copy(
                     name = name,
@@ -154,11 +196,9 @@ fun ItemScreen(
                     example = example.takeIf { it.isNotBlank() },
                     isAudioCard = isAudioCard,
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
-                    reminderTime = finalReminderTime // Сохраняем время
+                    reminderTime = reminderTime
                 )
                 itemManager.updateItem(updatedItem)
-
-                // Планируем или отменяем уведомление
                 handleNotificationScheduling(context, updatedItem)
             } else {
                 val newItem = Item(
@@ -169,22 +209,22 @@ fun ItemScreen(
                     isAudioCard = isAudioCard,
                     targetLanguage = if (isAudioCard) selectedLanguage.code else "pl",
                     folderId = folderId,
-                    reminderTime = finalReminderTime // Сохраняем время
+                    reminderTime = reminderTime
                 )
                 itemManager.addItem(newItem)
-
-                // Планируем уведомление
                 handleNotificationScheduling(context, newItem)
             }
             onBack()
         }
     }
 
-    //region Dialogs
+    // ─── Диалоги ────────────────────────────────────────────────────────────
+
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            shape = RoundedCornerShape(28.dp),
             title = {
                 Text(
                     "Удалить карточку?",
@@ -203,7 +243,7 @@ fun ItemScreen(
                     showDeleteDialog = false
                     if (isEditMode) {
                         itemManager.deleteItem(editingItem.id)
-                        onItemDeleted?.invoke()  // ← Только один вызов
+                        onItemDeleted?.invoke()
                     }
                 }) {
                     Text(
@@ -222,8 +262,50 @@ fun ItemScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
+            }
+        )
+    }
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            shape = RoundedCornerShape(28.dp),
+            title = {
+                Text(
+                    "Отменить изменения?",
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.SemiBold
+                )
             },
-            shape = RoundedCornerShape(28.dp)
+            text = {
+                Text(
+                    "Несохранённые изменения будут потеряны.",
+                    fontFamily = MyFontFamily
+                )
+            },
+            confirmButton = {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(onClick = { showDiscardDialog = false; onBack() }) {
+                        Text(
+                            "Отменить изменения",
+                            color = MaterialTheme.colorScheme.error,
+                            fontFamily = MyFontFamily,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    TextButton(onClick = { showDiscardDialog = false }) {
+                        Text(
+                            "Продолжить",
+                            fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                }
+            }
         )
     }
 
@@ -236,9 +318,7 @@ fun ItemScreen(
             onDismissRequest = { showTimeDialog = false },
             confirmButton = {},
             dismissButton = {},
-            colors = DatePickerDefaults.colors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
-            )
+            colors = DatePickerDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest)
         ) {
             Column {
                 DatePicker(
@@ -248,14 +328,10 @@ fun ItemScreen(
                     showModeToggle = false,
                     colors = DatePickerDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                        // Цвет круга вокруг выбранной даты (то, на что указывает стрелка)
                         selectedDayContainerColor = Blue80,
-                        // Цвет цифры внутри этого круга
                         selectedDayContentColor = Color.White,
-                        // Цвет кружка текущей даты (сегодня)
                         todayDateBorderColor = Blue80,
                         todayContentColor = Blue80,
-                        // Цвет стрелок переключения месяцев и заголовка "April 2026"
                         navigationContentColor = MaterialTheme.colorScheme.onSurface,
                         titleContentColor = MaterialTheme.colorScheme.onSurface,
                         headlineContentColor = MaterialTheme.colorScheme.onSurface
@@ -275,9 +351,10 @@ fun ItemScreen(
                     trailingContent = {
                         if (isTimeSelected) {
                             IconButton(onClick = {
-                                selectedTimeDialogText = "Укажите время"
-                                isTimeSelected = false
-                            }) { Icon(painterResource(R.drawable.x), null, Modifier.size(20.dp)) }
+                                selectedTimeDialogText = "Укажите время"; isTimeSelected = false
+                            }) {
+                                Icon(painterResource(R.drawable.x), null, Modifier.size(20.dp))
+                            }
                         }
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent)
@@ -293,20 +370,15 @@ fun ItemScreen(
                         Text(
                             "Отмена",
                             fontFamily = MyFontFamily,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                         )
                     }
                     TextButton(onClick = {
-                        // 1. Берем дату из календаря
                         datePickerState.selectedDateMillis?.let { calendar.timeInMillis = it }
-
                         if (isTimeSelected) {
-                            // 2. Берем время из таймпикера
                             calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
                             calendar.set(Calendar.MINUTE, timePickerState.minute)
                             calendar.set(Calendar.SECOND, 0)
-
-                            // --- ПРОВЕРКА НА ПРОШЛОЕ ВРЕМЯ ---
                             if (calendar.timeInMillis <= System.currentTimeMillis()) {
                                 Toast.makeText(
                                     context,
@@ -343,24 +415,25 @@ fun ItemScreen(
                         showTimePicker = false
                     }) {
                         Text(
-                            "OK", fontFamily = MyFontFamily,
+                            "OK",
+                            fontFamily = MyFontFamily,
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = {
-                        showTimePicker = false
-                    }) {
+                    TextButton(onClick = { showTimePicker = false }) {
                         Text(
-                            "Отмена", fontFamily = MyFontFamily,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            "Отмена",
+                            fontFamily = MyFontFamily,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                         )
                     }
                 },
                 text = {
                     TimePicker(
-                        state = timePickerState, colors = TimePickerDefaults.colors(
+                        state = timePickerState,
+                        colors = TimePickerDefaults.colors(
                             clockDialColor = MaterialTheme.colorScheme.background,
                             clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
                             timeSelectorUnselectedContainerColor = MaterialTheme.colorScheme.background,
@@ -374,55 +447,17 @@ fun ItemScreen(
         }
     }
 
-    if (showDiscardDialog) {
-        AlertDialog(
-            onDismissRequest = { showDiscardDialog = false },
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            title = {
-                Text(
-                    "Отменить изменения?",
-                    fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            text = { Text("Несохранённые изменения будут потеряны.", fontFamily = MyFontFamily) },
-            confirmButton = {
-                TextButton(onClick = { showDiscardDialog = false }) {
-                    Text(
-                        "Продолжить",
-                        fontFamily = MyFontFamily,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    showDiscardDialog = false
-                    onBack()
-                }) {
-                    Text(
-                        "Отменить изменения",
-                        color = MaterialTheme.colorScheme.error,
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            },
-            shape = RoundedCornerShape(28.dp)
-        )
-    }
+    // ─── Scaffold ────────────────────────────────────────────────────────────
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 modifier = Modifier.statusBarsPadding(),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
-                ),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 title = {
-                    Text(
-                        text = titleText,
+                    if (!isEditMode) Text(
+                        "Добавить",
                         fontFamily = MyFontFamily,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp
@@ -439,10 +474,7 @@ fun ItemScreen(
                             contentColor = MaterialTheme.colorScheme.onBackground
                         )
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.back),
-                            contentDescription = "Назад"
-                        )
+                        Icon(painterResource(R.drawable.back), contentDescription = "Назад")
                     }
                 },
                 actions = {
@@ -474,289 +506,162 @@ fun ItemScreen(
                 .padding(paddingValues)
                 .imePadding()
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 12.dp),
+            // ─── Блок текстовых полей ────────────────────────────────────
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                color = MaterialTheme.colorScheme.surfaceContainerLowest,
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(RADIUS_OUTER),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(18.dp),
-                    ) {
-                        WordTextField(
-                            value = name,
-                            onValueChange = { name = it },
-                            placeholder = "Заголовок",
-                            fontSize = 22.sp,
-                            maxLines = 6,
-                            readOnly = false,
-                            fontFamily = MyFontFamily,
-                            fontWeight = FontWeight.Medium
-                        )
-
-                        WordTextField(
-                            value = description,
-                            onValueChange = { description = it },
-                            placeholder = "Описание",
-                            fontSize = 18.sp,
-                            maxLines = 30,
-                            readOnly = false,
-                            fontFamily = MyFontFamily,
-                            isLinkHighlightingEnabled = true
-                        )
-                        Spacer(
-                            Modifier
-                                .height(1.dp)
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .background(MaterialTheme.colorScheme.background)
-                        )
-                        WordTextField(
-                            value = example,
-                            onValueChange = { example = it },
-                            placeholder = "Примечание",
-                            fontSize = 18.sp,
-                            maxLines = 6,
-                            readOnly = false,
-                            fontFamily = MyFontFamily,
-                        )
-                    }
-                }
-
-                Surface(
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    shape = RoundedCornerShape(RADIUS_OUTER),
-                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        .padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        val formattedDate = reminderTime?.let {
-                            formatReminderDate(it)
-                        } ?: "Добавить дату и время"
+                    WordTextField(
+                        value = name, onValueChange = { name = it },
+                        placeholder = "Заголовок", fontSize = 22.sp,
+                        maxLines = 6, readOnly = false,
+                        fontFamily = MyFontFamily, fontWeight = FontWeight.Medium
+                    )
+                    WordTextField(
+                        value = description, onValueChange = { description = it },
+                        placeholder = "Описание", fontSize = 18.sp,
+                        maxLines = 30, readOnly = false,
+                        fontFamily = MyFontFamily, isLinkHighlightingEnabled = true
+                    )
+                    SectionDivider()
+                    WordTextField(
+                        value = example, onValueChange = { example = it },
+                        placeholder = "Примечание", fontSize = 18.sp,
+                        maxLines = 6, readOnly = false, fontFamily = MyFontFamily
+                    )
+                }
+            }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) { showTimeDialog = true },
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painterResource(id = R.drawable.clock),
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(Modifier.width(16.dp))
-                            Text(
-                                text = formattedDate,
-                                fontFamily = MyFontFamily,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                            )
-                            Spacer(Modifier.width(16.dp))
+            // ─── Блок настроек ───────────────────────────────────────────
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(RADIUS_OUTER),
+                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                ) {
+                    // Напоминание
+                    SettingsRow(
+                        iconRes = R.drawable.clock,
+                        label = reminderTime?.let { formatReminderDate(it) }
+                            ?: "Добавить дату и время",
+                        onClick = { showTimeDialog = true },
+                        trailingContent = {
                             if (reminderTime != null) {
                                 IconButton(
                                     modifier = Modifier.size(24.dp),
                                     onClick = { reminderTime = null }) {
                                     Icon(
-                                        painterResource(id = R.drawable.x),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(20.dp)
+                                        painterResource(R.drawable.x), null, Modifier.size(20.dp),
+                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                 }
                             }
                         }
-                        Spacer(
-                            Modifier
-                                .height(1.dp)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                        )
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (isAudioCard) {
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .clickable(
-                                            interactionSource = remember { MutableInteractionSource() },
-                                            indication = null
-                                        ) { showLanguageMenu = true }) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            painterResource(id = R.drawable.volume),
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                        Spacer(Modifier.width(16.dp))
-                                        Text(
-                                            text = selectedLanguage.displayName,
-                                            fontFamily = MyFontFamily,
-                                            fontSize = 18.sp,
-                                            color = MaterialTheme.colorScheme.onBackground.copy(
-                                                alpha = 0.6f
-                                            ),
-                                        )
-                                    }
-                                    DropdownMenu(
-                                        expanded = showLanguageMenu,
-                                        shape = RoundedCornerShape(RADIUS_OUTER),
-                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                                        onDismissRequest = { showLanguageMenu = false }) {
-                                        Language.entries.forEach { language ->
-                                            DropdownMenuItem(
-                                                text = {
-                                                    Text(
-                                                        language.displayName,
-                                                        fontSize = 16.sp
-                                                    )
-                                                },
-                                                onClick = {
-                                                    selectedLanguage = language; showLanguageMenu =
-                                                    false
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            } else {
+                    )
+
+                    SectionDivider()
+
+                    // Аудио карточка
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (isAudioCard) {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null
+                                    ) { showLanguageMenu = true }
+                            ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        painterResource(id = R.drawable.volume),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(24.dp)
+                                        painterResource(R.drawable.volume), null,
+                                        Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                     Spacer(Modifier.width(16.dp))
                                     Text(
-                                        text = "Аудио карточка",
-                                        fontFamily = MyFontFamily,
+                                        selectedLanguage.displayName,
                                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                     )
                                 }
+                                DropdownMenu(
+                                    expanded = showLanguageMenu,
+                                    shape = RoundedCornerShape(RADIUS_OUTER),
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                    onDismissRequest = { showLanguageMenu = false }
+                                ) {
+                                    Language.entries.forEach { language ->
+                                        DropdownMenuItem(
+                                            text = { Text(language.displayName, fontSize = 16.sp) },
+                                            onClick = {
+                                                selectedLanguage = language; showLanguageMenu =
+                                                false
+                                            }
+                                        )
+                                    }
+                                }
                             }
-                            CustomSwitch(
-                                checked = isAudioCard,
-                                onCheckedChange = { isAudioCard = it })
-                        }
-                        if (isEditMode) {
-                            Spacer(
-                                Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { showMoveBottomSheet = true },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                        } else {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    painterResource(id = R.drawable.folder),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                    modifier = Modifier.size(24.dp)
+                                    painterResource(R.drawable.volume), null,
+                                    Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                 )
                                 Spacer(Modifier.width(16.dp))
                                 Text(
-                                    text = "Переместить",
-                                    fontFamily = MyFontFamily,
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                                )
-                            }
-                            Spacer(
-                                Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { showReadingDialog = true },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painterResource(id = R.drawable.reading),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = "Режим чтения",
-                                    fontFamily = MyFontFamily,
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                                )
-                            }
-                            Spacer(
-                                Modifier
-                                    .height(1.dp)
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.background)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null
-                                    ) { showDeleteDialog = true },
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    painterResource(id = R.drawable.delete),
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(Modifier.width(16.dp))
-                                Text(
-                                    text = "Удалить",
-                                    fontFamily = MyFontFamily,
+                                    "Аудио карточка", fontFamily = MyFontFamily,
                                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                                 )
                             }
                         }
+                        CustomSwitch(checked = isAudioCard, onCheckedChange = { isAudioCard = it })
+                    }
+
+                    // Действия режима редактирования
+                    if (isEditMode) {
+                        SectionDivider()
+                        SettingsRow(
+                            R.drawable.folder,
+                            "Переместить",
+                            onClick = { showMoveBottomSheet = true })
+                        SectionDivider()
+                        SettingsRow(
+                            R.drawable.reading,
+                            "Режим чтения",
+                            onClick = { showReadingDialog = true })
+                        SectionDivider()
+                        SettingsRow(
+                            R.drawable.delete,
+                            "Удалить",
+                            onClick = { showDeleteDialog = true })
                     }
                 }
-
             }
+
+            Spacer(Modifier.height(0.dp)) // отступ снизу для scroll
         }
     }
 
@@ -783,19 +688,13 @@ fun ItemScreen(
     }
 }
 
+// ─── Уведомления ─────────────────────────────────────────────────────────────
+
 private fun handleNotificationScheduling(context: Context, item: Item) {
     val id = item.id.hashCode()
-
-    // Сначала отменяем старое уведомление (если было)
     cancelNotification(context, id)
-
     if (item.reminderTime != null && item.reminderTime > System.currentTimeMillis()) {
-        scheduleNotification(
-            context = context,
-            timeInMillis = item.reminderTime,
-            message = item.name,
-            id = id
-        )
+        scheduleNotification(context, item.reminderTime, item.name, id)
     }
 }
 
@@ -806,28 +705,24 @@ fun scheduleNotification(context: Context, timeInMillis: Long, message: String, 
         putExtra("EXTRA_ID", id)
     }
     val pendingIntent = PendingIntent.getBroadcast(
-        context, id, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        context, id, intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
     )
-
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !alarmManager.canScheduleExactAlarms()) {
         context.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
         return
     }
-
     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent)
 }
 
 fun cancelNotification(context: Context, id: Int) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     val intent = Intent(context, NotificationReceiver::class.java).apply {
-        putExtra("EXTRA_ID", id) // Важно: добавляем тот же ключ
+        putExtra("EXTRA_ID", id)
     }
     val pendingIntent = PendingIntent.getBroadcast(
         context, id, intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
     )
-    pendingIntent?.let {
-        alarmManager.cancel(it)
-        it.cancel()
-    }
+    pendingIntent?.let { alarmManager.cancel(it); it.cancel() }
 }

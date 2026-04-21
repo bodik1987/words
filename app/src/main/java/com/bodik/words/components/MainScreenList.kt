@@ -86,7 +86,6 @@ fun MainScreenList(
                             example = if (folderName != null) "📁 $folderName" else item.example,
                             compact = item.description.isNullOrBlank() && item.example.isNullOrBlank() && folderName == null,
                             onClick = { id ->
-                                // Переход на экран редактирования через navController
                                 navController.navigate("item/edit/$id")
                             }
                         )

@@ -4,17 +4,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -38,21 +33,6 @@ import sh.calvin.reorderable.ReorderableColumn
 val RADIUS_OUTER = 16.dp
 val RADIUS_INNER = 4.dp
 val ITEM_SPACING = 2.dp
-
-fun rowShape(index: Int, lastIndex: Int) = when {
-    lastIndex == 0 -> RoundedCornerShape(RADIUS_OUTER)
-    index == 0 -> RoundedCornerShape(
-        topStart = RADIUS_OUTER, bottomStart = RADIUS_OUTER,
-        topEnd = RADIUS_INNER, bottomEnd = RADIUS_INNER
-    )
-
-    index == lastIndex -> RoundedCornerShape(
-        topStart = RADIUS_INNER, bottomStart = RADIUS_INNER,
-        topEnd = RADIUS_OUTER, bottomEnd = RADIUS_OUTER
-    )
-
-    else -> RoundedCornerShape(RADIUS_INNER)
-}
 
 fun columnShape(index: Int, lastIndex: Int) = when {
     lastIndex == 0 -> RoundedCornerShape(RADIUS_OUTER)
@@ -79,101 +59,6 @@ data class IslandListItem(
     val onClick: (String) -> Unit = {},
     val compact: Boolean = false,
 )
-
-@Composable
-fun IslandRow(
-    items: List<IslandListItem>,
-    modifier: Modifier = Modifier
-) {
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val availableWidth = maxWidth - 32.dp - (ITEM_SPACING * (items.size - 1))
-        val itemWidth = if (items.isNotEmpty())
-            (availableWidth / items.size).coerceAtLeast(48.dp)
-        else 0.dp
-
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(ITEM_SPACING),
-            contentPadding = PaddingValues(horizontal = 16.dp)
-        ) {
-            itemsIndexed(items) { index, item ->
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            item.label,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            fontFamily = MyFontFamily
-                        )
-                    },
-                    supportingContent = item.supportingText?.let {
-                        {
-                            Text(
-                                it,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                fontFamily = MyFontFamily
-                            )
-                        }
-                    },
-                    leadingContent = item.leadingContent,
-                    trailingContent = item.trailingContent,
-                    colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-                    modifier = Modifier
-                        .width(itemWidth)
-                        .heightIn(min = 72.dp)
-                        .clip(rowShape(index, items.lastIndex))
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun IslandColumn(
-    items: List<IslandListItem>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(ITEM_SPACING)
-    ) {
-        items.forEachIndexed { index, item ->
-            ListItem(
-                headlineContent = {
-                    Text(
-                        text = item.label,
-                        fontFamily = MyFontFamily,
-                    )
-                },
-                supportingContent = {
-                    Column {
-                        if (!item.supportingText.isNullOrBlank()) {
-                            Text(
-                                text = item.supportingText,
-                                fontFamily = MyFontFamily,
-                            )
-                        }
-                        if (!item.example.isNullOrBlank()) {
-                            Text(
-                                text = item.example,
-                                fontFamily = MyFontFamily,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                            )
-                        }
-                    }
-                },
-                leadingContent = item.leadingContent,
-                trailingContent = item.trailingContent,
-                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLowest),
-                modifier = Modifier.clip(columnShape(index, items.lastIndex))
-            )
-        }
-    }
-}
 
 @Composable
 fun ClickableIslandColumn(
