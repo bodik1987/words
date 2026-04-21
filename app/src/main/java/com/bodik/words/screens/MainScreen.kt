@@ -19,7 +19,7 @@ import com.bodik.words.utils.ItemManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, themeManager: com.bodik.words.utils.ThemeManager) {
     var showSettingsBottomSheet by remember { mutableStateOf(false) }
     var showAddFolderBottomSheet by remember { mutableStateOf(false) }
 
@@ -83,7 +83,7 @@ fun MainScreen(navController: NavHostController) {
             onImportDone = {
                 refreshFolders()
                 refreshUnassignedItems()
-            }
+            }, themeManager = themeManager
         )
     }
 

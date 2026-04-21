@@ -25,6 +25,7 @@ import com.bodik.words.screens.MainScreen
 import com.bodik.words.screens.StudyScreen
 import com.bodik.words.ui.theme.WordsTheme
 import com.bodik.words.utils.ItemManager
+import com.bodik.words.utils.ThemeManager
 
 class MainActivity : ComponentActivity() {
 
@@ -45,7 +46,8 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            WordsTheme {
+            val themeManager = remember { ThemeManager(this) }
+            WordsTheme(themeManager = themeManager) {
                 val navController = rememberNavController()
 
                 NavHost(
@@ -77,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     }
                 ) {
                     composable("main") {
-                        MainScreen(navController = navController)
+                        MainScreen(navController = navController, themeManager = themeManager)
                     }
 
                     composable(

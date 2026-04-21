@@ -31,6 +31,7 @@ import com.bodik.words.ui.components.IslandListItem
 import com.bodik.words.ui.components.LabelText
 import com.bodik.words.ui.components.ReorderableIslandColumn
 import com.bodik.words.ui.theme.MyFontFamily
+import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.formatReminderDate
 import java.util.Locale
 
@@ -104,7 +105,8 @@ fun MainScreenList(
                             Icon(
                                 painter = painterResource(id = R.drawable.folder),
                                 contentDescription = folder.name,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(24.dp),
+                                tint = Orange80
                             )
                         },
                         onClick = { id ->

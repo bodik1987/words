@@ -2,6 +2,7 @@ package com.bodik.words.screens
 
 import android.annotation.SuppressLint
 import android.speech.tts.TextToSpeech
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -73,11 +74,15 @@ fun StudyScreen(
     val context = LocalContext.current
     val itemManager = remember { ItemManager(context) }
 
-// В StudyScreen.kt
     var queue by remember {
-        val saved = itemManager.getSavedStudySession(folderId) // Загружаем сессию конкретной папки
-        val initialList = saved.ifEmpty {
-            // Если сессии нет, создаем новую из аудио-карточек этой папки
+        val saved = itemManager.getSavedStudySession(folderId)
+        val isContinuation = saved.isNotEmpty()
+
+        val initialList = if (isContinuation) {
+            // Показываем Toast только если сессия реально была найдена
+            Toast.makeText(context, "Игра продолжена", Toast.LENGTH_SHORT).show()
+            saved
+        } else {
             itemManager.getItemsInFolder(folderId).filter { it.isAudioCard }
         }
         mutableStateOf(initialList.toMutableList())
@@ -130,11 +135,22 @@ fun StudyScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     DisposableEffect(folderId) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) tts.stop()
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            tts.stop()
+            tts.shutdown()
+
+            // Если в очереди что-то осталось — сохраняем и уведомляем
             if (queue.isNotEmpty()) {
-                itemManager.saveStudySession(folderId, queue) // Сохраняем именно для этой папки
+                itemManager.saveStudySession(folderId, queue)
+                Toast.makeText(context, "Игра приостановлена", Toast.LENGTH_SHORT).show()
             } else {
-                itemManager.clearStudySession(folderId) // Очищаем, если всё выучено
+                itemManager.clearStudySession(folderId)
             }
         }
     }
@@ -448,10 +464,8 @@ fun StudyScreen(
                 TextButton(onClick = {
                     // 1. Удаляем из хранилища
                     itemManager.deleteItem(current.id)
-
                     // 2. Удаляем из текущей очереди экрана
                     queue = queue.drop(1).toMutableList()
-
                     // 3. Сбрасываем состояния
                     showAnswer = false
                     showDeleteDialog = false

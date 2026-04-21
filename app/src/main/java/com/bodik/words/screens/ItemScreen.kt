@@ -75,10 +75,10 @@ import com.bodik.words.components.BottomSheets.ReadingDialog
 import com.bodik.words.data.Item
 import com.bodik.words.data.Language
 import com.bodik.words.ui.components.CustomSwitch
+import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.ui.theme.MyFontFamily
-import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.ItemManager
 import com.bodik.words.utils.NotificationReceiver
 import com.bodik.words.utils.formatReminderDate
@@ -479,7 +479,7 @@ fun ItemScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(12.dp),
+                    .padding(horizontal = 12.dp),
             ) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -489,14 +489,14 @@ fun ItemScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(18.dp),
                     ) {
                         WordTextField(
                             value = name,
                             onValueChange = { name = it },
                             placeholder = "Слово/фраза",
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             maxLines = 6,
                             readOnly = false,
                             fontFamily = MyFontFamily,
@@ -513,7 +513,13 @@ fun ItemScreen(
                             fontFamily = MyFontFamily,
                             isLinkHighlightingEnabled = true
                         )
-
+                        Spacer(
+                            Modifier
+                                .height(1.dp)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .background(MaterialTheme.colorScheme.background)
+                        )
                         WordTextField(
                             value = example,
                             onValueChange = { example = it },
@@ -523,13 +529,22 @@ fun ItemScreen(
                             readOnly = false,
                             fontFamily = MyFontFamily,
                         )
-                        Spacer(
-                            Modifier
-                                .height(2.dp)
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
-                        )
+                    }
+                }
 
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         val formattedDate = reminderTime?.let {
                             formatReminderDate(it)
                         } ?: "Добавить дату и время"
@@ -537,7 +552,7 @@ fun ItemScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
+                                .padding(horizontal = 16.dp, vertical = 4.dp)
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
@@ -547,12 +562,14 @@ fun ItemScreen(
                             Icon(
                                 painterResource(id = R.drawable.clock),
                                 contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(Modifier.width(16.dp))
                             Text(
                                 text = formattedDate,
-                                fontFamily = MyFontFamily
+                                fontFamily = MyFontFamily,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                             )
                             Spacer(Modifier.width(16.dp))
                             if (reminderTime != null) {
@@ -562,6 +579,7 @@ fun ItemScreen(
                                     Icon(
                                         painterResource(id = R.drawable.x),
                                         contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -584,22 +602,41 @@ fun ItemScreen(
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
-                                        .clickable { showLanguageMenu = true }) {
-                                    Text(
-                                        text = selectedLanguage.displayName,
-                                        fontFamily = MyFontFamily,
-                                        fontSize = 18.sp,
-                                        color = Orange80
-                                    )
+                                        .clickable(
+                                            interactionSource = remember { MutableInteractionSource() },
+                                            indication = null
+                                        ) { showLanguageMenu = true }) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            painterResource(id = R.drawable.volume),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Spacer(Modifier.width(16.dp))
+                                        Text(
+                                            text = selectedLanguage.displayName,
+                                            fontFamily = MyFontFamily,
+                                            fontSize = 18.sp,
+                                            color = MaterialTheme.colorScheme.onBackground.copy(
+                                                alpha = 0.6f
+                                            ),
+                                        )
+                                    }
                                     DropdownMenu(
                                         expanded = showLanguageMenu,
+                                        shape = RoundedCornerShape(RADIUS_OUTER),
+                                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                                         onDismissRequest = { showLanguageMenu = false }) {
                                         Language.entries.forEach { language ->
                                             DropdownMenuItem(
                                                 text = {
                                                     Text(
                                                         language.displayName,
-                                                        fontFamily = MyFontFamily
+                                                        fontSize = 16.sp,
+                                                        color = MaterialTheme.colorScheme.onBackground.copy(
+                                                            alpha = 0.6f
+                                                        )
                                                     )
                                                 },
                                                 onClick = {
@@ -611,25 +648,38 @@ fun ItemScreen(
                                     }
                                 }
                             } else {
-                                Text(
-                                    text = "Аудио карточка",
-                                    fontFamily = MyFontFamily,
-                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        painterResource(id = R.drawable.volume),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(Modifier.width(16.dp))
+                                    Text(
+                                        text = "Аудио карточка",
+                                        fontFamily = MyFontFamily,
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                    )
+                                }
                             }
                             CustomSwitch(
                                 checked = isAudioCard,
                                 onCheckedChange = { isAudioCard = it })
                         }
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            if (isEditMode) {
+                        if (isEditMode) {
+                            Spacer(
+                                Modifier
+                                    .height(1.dp)
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.background)
+                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
                                 Button(
                                     onClick = { showDeleteDialog = true },
                                     shape = RoundedCornerShape(50),
@@ -642,11 +692,11 @@ fun ItemScreen(
                                     Text(
                                         text = "Удалить",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                        color = MaterialTheme.colorScheme.onBackground.copy(
+                                            alpha = 0.6f
+                                        )
                                     )
                                 }
-                            }
-                            if (editingItem != null) {
                                 Spacer(Modifier.width(12.dp))
                                 Button(
                                     onClick = { showReadingDialog = true },
@@ -660,11 +710,11 @@ fun ItemScreen(
                                     Text(
                                         text = "Читать",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                        color = MaterialTheme.colorScheme.onBackground.copy(
+                                            alpha = 0.6f
+                                        )
                                     )
                                 }
-                            }
-                            if (editingItem != null) {
                                 Spacer(Modifier.width(12.dp))
                                 Button(
                                     onClick = { showMoveBottomSheet = true },
@@ -678,13 +728,16 @@ fun ItemScreen(
                                     Text(
                                         text = "Переместить",
                                         fontFamily = MyFontFamily,
-                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                                        color = MaterialTheme.colorScheme.onBackground.copy(
+                                            alpha = 0.6f
+                                        )
                                     )
                                 }
                             }
                         }
                     }
                 }
+
             }
         }
     }

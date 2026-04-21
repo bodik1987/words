@@ -61,7 +61,7 @@ fun TopBar(
                     fontSize = 24.sp,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.width(20.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 BasicTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
