@@ -335,7 +335,7 @@ fun StudyScreen(
                                             shape = CircleShape,
                                             contentPadding = PaddingValues(0.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.background,
+                                                containerColor = MaterialTheme.colorScheme.onSecondary,
                                                 contentColor = MaterialTheme.colorScheme.onBackground
                                             )
                                         ) {
