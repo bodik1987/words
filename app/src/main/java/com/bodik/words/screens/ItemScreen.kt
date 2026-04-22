@@ -177,10 +177,12 @@ fun ItemScreen(
     )
 
     val hasChanges = if (isEditMode) {
-        name != (editingItem?.name ?: "") ||
-                description != (editingItem?.description ?: "") ||
-                example != (editingItem?.example ?: "") ||
-                isAudioCard != (editingItem?.isAudioCard ?: false)
+        editingItem.let { item ->
+            name != item.name ||
+                    description != (item.description ?: "") ||
+                    example != (item.example ?: "") ||
+                    isAudioCard != item.isAudioCard
+        }
     } else {
         name.isNotBlank() || description.isNotBlank() || example.isNotBlank()
     }
