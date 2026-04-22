@@ -46,7 +46,7 @@ fun MainScreenFloatingButtons(onAddFolderClick: () -> Unit = {}, onAddItemClick:
         ) {
             FloatingActionButton(
                 onClick = onAddFolderClick,
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(54.dp),
                 shape = CircleShape,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                 contentColor = Orange80,
@@ -54,7 +54,7 @@ fun MainScreenFloatingButtons(onAddFolderClick: () -> Unit = {}, onAddItemClick:
                 Icon(
                     painter = painterResource(id = R.drawable.add_folder),
                     contentDescription = "Новая папка",
-                    modifier = Modifier.size(26.dp),
+                    modifier = Modifier.size(30.dp),
                     tint = Orange80
                 )
             }

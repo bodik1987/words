@@ -123,7 +123,7 @@ fun ReorderableIslandColumn(
     ) { index, item, isDragging ->
         key(item.id) {
             ReorderableItem {
-                val shape = if (isDragging) RoundedCornerShape(RADIUS_INNER) else columnShape(
+                val shape = if (isDragging) RoundedCornerShape(RADIUS_OUTER) else columnShape(
                     index,
                     items.lastIndex
                 )
@@ -180,7 +180,7 @@ fun ReorderableIslandColumn(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
                     ),
                     modifier = Modifier
-                        .then(if (item.compact && item.reminder == null) Modifier.heightIn(max = 48.dp) else Modifier)
+                        .then(if (item.compact && item.reminder == null) Modifier.heightIn(max = 52.dp) else Modifier)
                         .longPressDraggableHandle(
                             onDragStarted = {
                                 haptic.performHapticFeedback(HapticFeedbackType.GestureThresholdActivate)

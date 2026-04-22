@@ -28,7 +28,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bodik.words.R
@@ -58,10 +57,10 @@ fun TopBar(
                     maxLines = 1,
                     fontWeight = FontWeight.SemiBold,
                     fontFamily = MyFontFamily,
-                    fontSize = 24.sp,
-                    overflow = TextOverflow.Ellipsis
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(start = 4.dp),
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 BasicTextField(
                     value = searchQuery,
                     onValueChange = onSearchQueryChange,
@@ -115,7 +114,7 @@ fun TopBar(
                     }
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
                     onClick = onMenuClick,
