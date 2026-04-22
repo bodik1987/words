@@ -1,4 +1,4 @@
-package com.bodik.words.components.BottomSheets
+package com.bodik.words.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,14 +34,14 @@ fun ReadingDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = Modifier
+            modifier = Modifier.Companion
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(RADIUS_OUTER),
             color = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {
             Column(
-                modifier = Modifier
+                modifier = Modifier.Companion
                     .fillMaxWidth()
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState()),
@@ -51,7 +51,7 @@ fun ReadingDialog(
                     text = name,
                     fontSize = 20.sp,
                     fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.SemiBold,
+                    fontWeight = FontWeight.Companion.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 

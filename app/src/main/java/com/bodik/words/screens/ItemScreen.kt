@@ -71,7 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bodik.words.R
 import com.bodik.words.components.BottomSheets.MoveItemBottomSheet
-import com.bodik.words.components.BottomSheets.ReadingDialog
+import com.bodik.words.components.ReadingDialog
 import com.bodik.words.data.Item
 import com.bodik.words.data.Language
 import com.bodik.words.ui.components.CustomSwitch

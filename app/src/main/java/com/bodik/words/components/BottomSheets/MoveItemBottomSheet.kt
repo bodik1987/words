@@ -124,7 +124,7 @@ fun MoveItemBottomSheet(
                 }
             }
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             Button(
                 onClick = {
@@ -139,7 +139,7 @@ fun MoveItemBottomSheet(
                 shape = RoundedCornerShape(RADIUS_OUTER),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Orange80,
-                    contentColor = androidx.compose.ui.graphics.Color.White
+                    contentColor = Color.White
                 ),
             ) {
                 Text(

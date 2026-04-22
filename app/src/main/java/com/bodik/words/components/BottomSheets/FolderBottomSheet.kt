@@ -65,7 +65,7 @@ fun FolderBottomSheet(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 24.dp),
         ) {
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             if (hasAudioCards) {
                 Button(
