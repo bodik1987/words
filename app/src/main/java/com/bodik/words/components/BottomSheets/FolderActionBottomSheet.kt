@@ -68,7 +68,6 @@ fun FolderActionBottomSheet(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 20.dp),
         ) {
-            // Заголовок
             Text(
                 text = titleText,
                 modifier = Modifier
@@ -81,7 +80,6 @@ fun FolderActionBottomSheet(
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            // Поле ввода
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(
@@ -104,7 +102,6 @@ fun FolderActionBottomSheet(
 
             Spacer(Modifier.height(ITEM_SPACING))
 
-            // Кнопка действия
             Button(
                 onClick = {
                     if (isEnabled) {
@@ -120,7 +117,6 @@ fun FolderActionBottomSheet(
                 ),
                 enabled = isEnabled,
                 colors = ButtonDefaults.buttonColors(
-                    // Унифицируем цвет: используем Orange80 для активного состояния
                     containerColor = Orange80,
                     contentColor = Color.White,
                     disabledContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest,

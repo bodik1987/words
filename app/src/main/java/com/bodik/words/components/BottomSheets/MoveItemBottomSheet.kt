@@ -66,7 +66,7 @@ fun MoveItemBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
         dragHandle = null,
     ) {
         Column(
@@ -95,14 +95,12 @@ fun MoveItemBottomSheet(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(RADIUS_OUTER),
-                color = MaterialTheme.colorScheme.surfaceContainerLowest,
+                color = MaterialTheme.colorScheme.onSecondary,
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     FolderIslandItem(
                         name = "Без папки",
                         isSelected = selectedFolderId == null,
-                        isFirst = true,
-                        isLast = folders.isEmpty(),
                         onClick = { selectedFolderId = null }
                     )
 
@@ -111,13 +109,11 @@ fun MoveItemBottomSheet(
                             Modifier
                                 .height(1.dp)
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.background)
+                                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                         )
                         FolderIslandItem(
                             name = folder.name,
                             isSelected = selectedFolderId == folder.id,
-                            isFirst = false,
-                            isLast = index == folders.lastIndex,
                             onClick = { selectedFolderId = folder.id }
                         )
                     }
@@ -145,7 +141,7 @@ fun MoveItemBottomSheet(
                 Text(
                     "Переместить",
                     fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.Medium,
+                    fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
             }
@@ -157,8 +153,6 @@ fun MoveItemBottomSheet(
 private fun FolderIslandItem(
     name: String,
     isSelected: Boolean,
-    isFirst: Boolean,
-    isLast: Boolean,
     onClick: () -> Unit
 ) {
     androidx.compose.material3.ListItem(
