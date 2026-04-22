@@ -26,6 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.components.ITEM_SPACING
+import com.bodik.words.ui.components.RADIUS_INNER
 import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.theme.MyFontFamily
 import kotlinx.coroutines.launch
@@ -71,7 +73,10 @@ fun FolderBottomSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
-                    shape = RoundedCornerShape(RADIUS_OUTER),
+                    shape = RoundedCornerShape(
+                        topStart = RADIUS_OUTER, topEnd = RADIUS_OUTER,
+                        bottomStart = RADIUS_INNER, bottomEnd = RADIUS_INNER
+                    ),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.onSecondary,
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -84,7 +89,7 @@ fun FolderBottomSheet(
                         fontSize = 18.sp
                     )
                 }
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(ITEM_SPACING))
             }
 
             Button(
@@ -92,7 +97,14 @@ fun FolderBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
+                shape = RoundedCornerShape(
+                    // Если аудиокарт нет, эта кнопка первая -> верх OUTER. Иначе INNER.
+                    topStart = if (!hasAudioCards) RADIUS_OUTER else RADIUS_INNER,
+                    topEnd = if (!hasAudioCards) RADIUS_OUTER else RADIUS_INNER,
+                    // Снизу всегда INNER, так как после нее точно есть кнопка удаления
+                    bottomStart = RADIUS_INNER,
+                    bottomEnd = RADIUS_INNER
+                ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
@@ -106,14 +118,17 @@ fun FolderBottomSheet(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(ITEM_SPACING))
 
             Button(
                 onClick = { showDeleteDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
+                shape = RoundedCornerShape(
+                    topStart = RADIUS_INNER, topEnd = RADIUS_INNER,
+                    bottomStart = RADIUS_OUTER, bottomEnd = RADIUS_OUTER
+                ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.error
@@ -130,13 +145,14 @@ fun FolderBottomSheet(
     }
 
     if (showRenameSheet) {
-        RenameFolderBottomSheet(
-            folderName = folderName,
+        FolderActionBottomSheet(
+            initialName = folderName,
+            titleText = "Переименовать папку",
             onDismiss = { showRenameSheet = false },
-            onRenameFolder = { newName ->
+            onConfirm = { newName ->
                 onRenameFolder(newName)
                 showRenameSheet = false
-                closeSheet()
+                closeSheet() // Закрываем основную шторку после успешного переименования
             }
         )
     }

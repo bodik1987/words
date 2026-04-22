@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextLayoutResult
@@ -160,6 +161,7 @@ fun WordTextField(
             readOnly = false,
             enabled = enabled,
             visualTransformation = visualTransformation,
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
             textStyle = TextStyle(
                 fontSize = fontSize,
                 fontFamily = fontFamily ?: FontFamily.Default,

@@ -9,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
-import com.bodik.words.components.BottomSheets.AddFolderBottomSheet
+import com.bodik.words.components.BottomSheets.FolderActionBottomSheet
 import com.bodik.words.components.BottomSheets.SettingsBottomSheet
 import com.bodik.words.components.MainScreenFloatingButtons
 import com.bodik.words.components.MainScreenList
@@ -88,12 +88,13 @@ fun MainScreen(navController: NavHostController, themeManager: com.bodik.words.u
     }
 
     if (showAddFolderBottomSheet) {
-        AddFolderBottomSheet(
+        FolderActionBottomSheet(
+            titleText = "Добавить папку",
             onDismiss = {
                 showAddFolderBottomSheet = false
                 refreshFolders()
             },
-            onFolderAdded = { folderName ->
+            onConfirm = { folderName ->
                 folderManager.addFolder(folderName)
                 refreshFolders()
             }

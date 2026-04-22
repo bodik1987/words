@@ -1,6 +1,5 @@
 package com.bodik.words.components.BottomSheets
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.components.ITEM_SPACING
+import com.bodik.words.ui.components.RADIUS_INNER
 import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.components.WordTextField
 import com.bodik.words.ui.theme.MyFontFamily
@@ -38,18 +39,24 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddFolderBottomSheet(
+fun FolderActionBottomSheet(
+    initialName: String = "",
+    titleText: String,
     onDismiss: () -> Unit,
-    onFolderAdded: (String) -> Unit
+    onConfirm: (String) -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-
+    var name by remember { mutableStateOf(initialName) }
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val closeSheet = {
         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismiss() }
     }
+
+    // Проверка: имя не пустое И (если это переименование) оно изменилось
+    val isChanged = name.isNotBlank() && name.trim() != initialName
+    // Кнопка активна, если имя не пустое (для новой папки) или если оно реально изменилось (для переименования)
+    val isEnabled = if (initialName.isEmpty()) name.isNotBlank() else isChanged
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -72,7 +79,7 @@ fun AddFolderBottomSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Добавить папку",
+                    text = titleText,
                     fontFamily = MyFontFamily,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 20.sp,
@@ -84,45 +91,51 @@ fun AddFolderBottomSheet(
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(RADIUS_OUTER),
+                shape = RoundedCornerShape(
+                    topStart = RADIUS_OUTER,
+                    topEnd = RADIUS_OUTER,
+                    bottomStart = RADIUS_INNER,
+                    bottomEnd = RADIUS_INNER
+                ),
                 color = MaterialTheme.colorScheme.onSecondary,
             ) {
-                Column(
+                WordTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = "Название папки",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                ) {
-                    WordTextField(
-                        value = title,
-                        onValueChange = { title = it },
-                        placeholder = "Название папки",
-                        fontSize = 20.sp,
-                        maxLines = 3,
-                        fontFamily = MyFontFamily,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
+                    fontSize = 20.sp,
+                    maxLines = 3,
+                    fontFamily = MyFontFamily,
+                    fontWeight = FontWeight.Medium
+                )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(ITEM_SPACING))
 
             Button(
                 onClick = {
-                    if (title.isNotBlank()) {
-                        onFolderAdded(title)
+                    if (isEnabled) {
+                        onConfirm(name.trim())
                         closeSheet()
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
-                enabled = title.isNotBlank(),
+                shape = RoundedCornerShape(
+                    topStart = RADIUS_INNER,
+                    topEnd = RADIUS_INNER,
+                    bottomStart = RADIUS_OUTER,
+                    bottomEnd = RADIUS_OUTER
+                ),
+                enabled = isEnabled,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (title.isNotBlank()) Orange80
+                    containerColor = if (isEnabled) Orange80
                     else MaterialTheme.colorScheme.surfaceContainerHighest,
-                    contentColor = if (title.isNotBlank()) Color.White
+                    contentColor = if (isEnabled) Color.White
                     else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 ),
             ) {
@@ -136,4 +149,3 @@ fun AddFolderBottomSheet(
         }
     }
 }
-

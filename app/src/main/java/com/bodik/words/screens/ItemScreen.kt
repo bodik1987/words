@@ -481,6 +481,7 @@ fun ItemScreen(
                     Button(
                         onClick = { saveItem() },
                         shape = RoundedCornerShape(50),
+                        modifier = Modifier.height(44.dp),
                         enabled = name.isNotBlank(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Blue80,
@@ -491,7 +492,7 @@ fun ItemScreen(
                         Text(
                             "Сохранить",
                             fontFamily = MyFontFamily,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                     }

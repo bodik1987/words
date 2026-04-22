@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,9 +29,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bodik.words.ui.components.ITEM_SPACING
+import com.bodik.words.ui.components.RADIUS_INNER
 import com.bodik.words.ui.components.RADIUS_OUTER
+import com.bodik.words.ui.theme.Blue80
 import com.bodik.words.ui.theme.MyFontFamily
-import com.bodik.words.ui.theme.Orange80
 import com.bodik.words.utils.AppTheme
 import com.bodik.words.utils.ExportImportManager
 import com.bodik.words.utils.FolderManager
@@ -128,8 +131,8 @@ fun SettingsBottomSheet(
             )
 
             Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(ITEM_SPACING)
             ) {
                 val themes = listOf(
                     AppTheme.AUTO to "Авто",
@@ -137,21 +140,38 @@ fun SettingsBottomSheet(
                     AppTheme.DARK to "Темная"
                 )
 
-                themes.forEach { (theme, label) ->
+                themes.forEachIndexed { index, (theme, label) ->
                     val isSelected = themeManager.theme.value == theme
+
+                    val shape = when (index) {
+                        0 -> RoundedCornerShape(
+                            topStart = RADIUS_OUTER,
+                            bottomStart = RADIUS_OUTER,
+                            topEnd = RADIUS_INNER,
+                            bottomEnd = RADIUS_INNER
+                        )
+
+                        themes.size - 1 -> RoundedCornerShape(
+                            topStart = RADIUS_INNER,
+                            bottomStart = RADIUS_INNER,
+                            topEnd = RADIUS_OUTER,
+                            bottomEnd = RADIUS_OUTER
+                        )
+
+                        else -> RoundedCornerShape(RADIUS_INNER)
+                    }
+
                     Button(
                         onClick = { themeManager.setTheme(theme) },
                         modifier = Modifier
                             .weight(1f)
                             .height(44.dp),
-                        shape = RoundedCornerShape(RADIUS_OUTER),
+                        shape = shape,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isSelected) Orange80 else MaterialTheme.colorScheme.onSecondary,
-                            // ИСПРАВЛЕНИЕ: устанавливаем контрастный цвет текста для выбранной кнопки
+                            containerColor = if (isSelected) Blue80 else MaterialTheme.colorScheme.onSecondary,
                             contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onBackground
                         ),
-                        // Добавь это, чтобы текст точно помещался без лишних отступов
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
+                        contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
                             text = label,
@@ -180,7 +200,12 @@ fun SettingsBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
+                shape = RoundedCornerShape(
+                    topStart = RADIUS_OUTER,
+                    topEnd = RADIUS_OUTER,
+                    bottomStart = RADIUS_INNER,
+                    bottomEnd = RADIUS_INNER
+                ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground
@@ -194,7 +219,7 @@ fun SettingsBottomSheet(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(ITEM_SPACING))
 
             Button(
                 onClick = {
@@ -203,7 +228,12 @@ fun SettingsBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = RoundedCornerShape(RADIUS_OUTER),
+                shape = RoundedCornerShape(
+                    topStart = RADIUS_INNER,
+                    topEnd = RADIUS_INNER,
+                    bottomStart = RADIUS_OUTER,
+                    bottomEnd = RADIUS_OUTER
+                ),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.onSecondary,
                     contentColor = MaterialTheme.colorScheme.onBackground

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +67,7 @@ fun TopBar(
                     onValueChange = onSearchQueryChange,
                     singleLine = true,
                     modifier = Modifier.weight(1f),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                     textStyle = TextStyle(
                         fontFamily = MyFontFamily,
                         fontSize = 16.sp,
@@ -75,7 +77,6 @@ fun TopBar(
                         Box(
                             modifier = Modifier
                                 .height(44.dp)
-
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                                 .padding(start = 16.dp, end = 4.dp),

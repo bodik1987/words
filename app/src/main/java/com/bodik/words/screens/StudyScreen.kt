@@ -60,6 +60,8 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.bodik.words.R
+import com.bodik.words.ui.components.ITEM_SPACING
+import com.bodik.words.ui.components.RADIUS_INNER
 import com.bodik.words.ui.components.RADIUS_OUTER
 import com.bodik.words.ui.theme.Green
 import com.bodik.words.ui.theme.MyFontFamily
@@ -387,7 +389,7 @@ fun StudyScreen(
                 } else {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(ITEM_SPACING)
                     ) {
                         // Не помню — в конец очереди
                         Button(
@@ -401,7 +403,12 @@ fun StudyScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(52.dp),
-                            shape = RoundedCornerShape(RADIUS_OUTER),
+                            shape = RoundedCornerShape(
+                                topStart = RADIUS_OUTER,
+                                topEnd = RADIUS_INNER,
+                                bottomStart = RADIUS_OUTER,
+                                bottomEnd = RADIUS_INNER
+                            ),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.errorContainer,
                                 contentColor = MaterialTheme.colorScheme.error
@@ -410,7 +417,7 @@ fun StudyScreen(
                             Text(
                                 "Не помню",
                                 fontFamily = MyFontFamily,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
                         }
@@ -426,7 +433,12 @@ fun StudyScreen(
                             modifier = Modifier
                                 .weight(1f)
                                 .height(52.dp),
-                            shape = RoundedCornerShape(RADIUS_OUTER),
+                            shape = RoundedCornerShape(
+                                topStart = RADIUS_INNER,
+                                topEnd = RADIUS_OUTER,
+                                bottomStart = RADIUS_INNER,
+                                bottomEnd = RADIUS_OUTER
+                            ),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Green,
                                 contentColor = Color.White
@@ -435,7 +447,7 @@ fun StudyScreen(
                             Text(
                                 "Помню",
                                 fontFamily = MyFontFamily,
-                                fontWeight = FontWeight.Medium,
+                                fontWeight = FontWeight.Bold,
                                 fontSize = 18.sp
                             )
                         }
