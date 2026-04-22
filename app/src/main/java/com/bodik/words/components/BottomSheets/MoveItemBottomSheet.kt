@@ -104,7 +104,7 @@ fun MoveItemBottomSheet(
                         onClick = { selectedFolderId = null }
                     )
 
-                    folders.forEachIndexed { index, folder ->
+                    folders.forEachIndexed { _, folder ->
                         Spacer(
                             Modifier
                                 .height(1.dp)

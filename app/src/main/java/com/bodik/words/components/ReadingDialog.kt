@@ -34,14 +34,14 @@ fun ReadingDialog(
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
         Surface(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(RADIUS_OUTER),
             color = MaterialTheme.colorScheme.surfaceContainerLowest
         ) {
             Column(
-                modifier = Modifier.Companion
+                modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp)
                     .verticalScroll(rememberScrollState()),
@@ -51,7 +51,7 @@ fun ReadingDialog(
                     text = name,
                     fontSize = 20.sp,
                     fontFamily = MyFontFamily,
-                    fontWeight = FontWeight.Companion.SemiBold,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
